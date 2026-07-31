@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { useStudio } from '../context/StudioContext';
 import {
   Award,
@@ -7,15 +7,75 @@ import {
   Sparkles,
   ArrowRight,
   Quote,
-  CheckCircle2
+  CheckCircle2,
+  Camera,
+  Upload,
+  Check,
+  Mail,
+  Phone
 } from 'lucide-react';
+import defaultFounderPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
 
 export const AboutSection: React.FC = () => {
   const {
     setIsBookingOpen,
     setCurrentView,
-    founderData
+    founderData,
+    updateFounderPhoto,
+    openOwnerPortal
   } = useStudio();
+
+  const [toastMsg, setToastMsg] = useState('');
+  const founderFileInputRef = useRef<HTMLInputElement>(null);
+
+  const compressProfilePhoto = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const raw = e.target?.result as string;
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 600;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
+          } else {
+            resolve(raw);
+          }
+        };
+        img.onerror = () => resolve(raw);
+        img.src = raw;
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleDirectPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const base64 = await compressProfilePhoto(file);
+      if (base64) {
+        updateFounderPhoto(base64);
+        setToastMsg('Founder photo updated & saved live to website!');
+        setTimeout(() => setToastMsg(''), 4000);
+      }
+    }
+  };
 
   return (
     <section id="about-us-section" className="py-24 bg-[#E2D9CD] dark:bg-[#121110] transition-colors duration-300 relative overflow-hidden">
@@ -157,24 +217,55 @@ export const AboutSection: React.FC = () => {
 
         </div>
 
-        {/* Compact Instagram-Style Founder Section (Clean display without manual photo add triggers) */}
+        {/* Compact Instagram-Style Founder Section */}
         <div className="bg-[#E8DFC8] dark:bg-[#1C1B19] border border-[#B58E5B]/50 p-6 sm:p-8 relative overflow-hidden shadow-lg rounded-xl">
+          
+          {/* Toast Notification for photo update */}
+          {toastMsg && (
+            <div className="mb-4 p-3 bg-[#B58E5B] text-white text-xs font-bold uppercase tracking-wider flex items-center justify-between shadow-md animate-fadeIn">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4" />
+                <span>{toastMsg}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Hidden File Input for Device Photo Upload */}
+          <input
+            type="file"
+            ref={founderFileInputRef}
+            accept="image/*"
+            onChange={handleDirectPhotoChange}
+            className="hidden"
+          />
+
           <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-10">
             
-            {/* Instagram-style Circle Avatar */}
+            {/* Instagram-style Circle Avatar with Direct Photo Upload Trigger */}
             <div className="relative group shrink-0">
               {/* Instagram Gradient Ring */}
               <div className="p-[3px] rounded-full bg-gradient-to-tr from-[#B58E5B] via-[#F3E3C3] to-[#8C6638] shadow-xl hover:shadow-[#B58E5B]/20 transition-all duration-300">
                 <div className="p-1 bg-[#E8DFC8] dark:bg-[#1C1B19] rounded-full">
-                  <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden bg-gray-900">
+                  <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden bg-gray-900 group">
                     <img
                       src={founderData.photo}
                       alt={`${founderData.name} - ${founderData.title}`}
                       className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800';
+                        (e.target as HTMLImageElement).src = defaultFounderPhoto;
                       }}
                     />
+                    
+                    {/* Hover Camera Overlay to Change Photo */}
+                    <button
+                      type="button"
+                      onClick={() => founderFileInputRef.current?.click()}
+                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs font-bold gap-1 cursor-pointer"
+                      title="Click to Upload New Founder Photo From Your Device"
+                    >
+                      <Camera className="w-6 h-6 text-[#B58E5B]" />
+                      <span>Upload Photo</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -199,6 +290,24 @@ export const AboutSection: React.FC = () => {
                 <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#1F1F1F] dark:text-white mt-0.5">
                   {founderData.name}
                 </h3>
+
+                {/* Founder Direct Contact Info */}
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-gray-700 dark:text-gray-200 font-medium mt-1">
+                  <a
+                    href={`mailto:${founderData.email || 'workwithhomescapes@gmail.com'}`}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#121110]/5 dark:bg-white/10 border border-[#B58E5B]/40 hover:border-[#B58E5B] text-[#B58E5B] transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-[#B58E5B]" />
+                    <span>{founderData.email || 'workwithhomescapes@gmail.com'}</span>
+                  </a>
+                  <a
+                    href={`tel:${(founderData.phone || '+91 7380334333').replace(/\s+/g, '')}`}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#121110]/5 dark:bg-white/10 border border-[#B58E5B]/40 hover:border-[#B58E5B] text-[#B58E5B] transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-[#B58E5B]" />
+                    <span>{founderData.phone || '+91 7380334333'}</span>
+                  </a>
+                </div>
               </div>
 
               <div className="relative pl-4 border-l-2 border-[#B58E5B] text-left">
@@ -230,6 +339,25 @@ export const AboutSection: React.FC = () => {
                 >
                   <span>Book Session with {founderData.name.split(' ')[0]}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => founderFileInputRef.current?.click()}
+                  className="px-4 py-2.5 border border-[#B58E5B] bg-[#B58E5B]/10 hover:bg-[#B58E5B] text-[#B58E5B] hover:text-white text-xs uppercase tracking-wider font-bold transition-all shadow-xs flex items-center gap-2"
+                  title="Upload Founder Photo From Your Device"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Change Founder Photo</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openOwnerPortal}
+                  className="px-4 py-2.5 border border-gray-400 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-[#B58E5B] hover:text-[#B58E5B] text-xs uppercase tracking-wider font-semibold transition-all flex items-center gap-1.5"
+                  title="Open Owner CMS Portal"
+                >
+                  <span>Owner Portal</span>
                 </button>
               </div>
 

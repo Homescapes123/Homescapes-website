@@ -125,5 +125,7 @@ export interface FounderData {
   photo: string;
   quote: string;
   bio: string;
+  email?: string;
+  phone?: string;
   achievements: string[];
 }

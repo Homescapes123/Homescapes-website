@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useStudio } from '../context/StudioContext';
 import { Project, Service, Testimonial, FAQItem, BlogPost, PortfolioCategory } from '../types';
+import defaultFounderPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
 import {
   X,
   Plus,
@@ -22,7 +23,9 @@ import {
   Link as LinkIcon,
   UploadCloud,
   Check,
-  Edit2
+  Edit2,
+  Lock,
+  KeyRound
 } from 'lucide-react';
 
 const ALL_CATEGORIES: PortfolioCategory[] = [
@@ -41,6 +44,9 @@ export const CMSManagerModal: React.FC = () => {
   const {
     isCMSOpen,
     setIsCMSOpen,
+    isOwnerAuthenticated,
+    lockOwnerPortal,
+    changeOwnerPin,
     projects,
     setProjects,
     services,
@@ -56,21 +62,28 @@ export const CMSManagerModal: React.FC = () => {
     resetAllDataToDefaults,
     founderData,
     setFounderData,
+    updateFounderPhoto,
     resetFounderPhoto
   } = useStudio();
 
   const [activeTab, setActiveTab] = useState<'projects' | 'services' | 'testimonials' | 'faqs' | 'blog' | 'bookings' | 'founder'>('projects');
   const [successMsg, setSuccessMsg] = useState('');
+  const [showChangePinModal, setShowChangePinModal] = useState(false);
+  const [newPinInput, setNewPinInput] = useState('');
+  const [pinNotice, setPinNotice] = useState('');
+
   const [deleteTarget, setDeleteTarget] = useState<{
     type: 'project' | 'service' | 'testimonial' | 'faq' | 'blog' | 'booking' | 'reset';
     id?: string;
     name: string;
   } | null>(null);
-  const cmsFileInputRef = useRef<HTMLInputElement>(null);
 
-  // File input refs for owner project photo uploads
+  const cmsFileInputRef = useRef<HTMLInputElement>(null);
   const heroFileInputRef = useRef<HTMLInputElement>(null);
   const galleryFileInputRef = useRef<HTMLInputElement>(null);
+  const founderFileInputRef = useRef<HTMLInputElement>(null);
+
+  const [founderUrlInput, setFounderUrlInput] = useState('');
 
   // Editing state for new/existing project
   const [showAddProject, setShowAddProject] = useState(false);
@@ -98,11 +111,30 @@ export const CMSManagerModal: React.FC = () => {
     client: 'Private Residence'
   });
 
-  if (!isCMSOpen) return null;
+  if (!isCMSOpen || !isOwnerAuthenticated) return null;
 
   const showNotification = (msg: string) => {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(''), 3000);
+  };
+
+  const handleFounderPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const base64 = await compressImage(file, 600, 0.75);
+      if (base64) {
+        updateFounderPhoto(base64);
+        showNotification('Founder portrait uploaded & saved to live website!');
+      }
+    }
+  };
+
+  const handleFounderUrlSubmit = () => {
+    if (founderUrlInput.trim()) {
+      updateFounderPhoto(founderUrlInput.trim());
+      setFounderUrlInput('');
+      showNotification('Founder portrait URL saved to live website!');
+    }
   };
 
   const resetProjectForm = () => {
@@ -335,13 +367,27 @@ export const CMSManagerModal: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {successMsg && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-[#B58E5B] text-white text-xs animate-fadeIn">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-[#B58E5B] text-white text-xs animate-fadeIn font-medium">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {successMsg}
               </span>
             )}
+
+            <button
+              id="cms-change-pin-btn"
+              onClick={() => {
+                setShowChangePinModal(true);
+                setPinNotice('');
+                setNewPinInput('');
+              }}
+              className="px-3 py-1.5 border border-[#B58E5B]/60 hover:bg-[#B58E5B] text-xs uppercase tracking-wider flex items-center gap-1.5 text-gray-200 transition-colors"
+              title="Change Owner Security PIN"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-[#B58E5B]" />
+              <span className="hidden sm:inline">Change PIN</span>
+            </button>
 
             <button
               id="cms-export-btn"
@@ -364,9 +410,20 @@ export const CMSManagerModal: React.FC = () => {
             </button>
 
             <button
+              id="cms-lock-btn"
+              onClick={lockOwnerPortal}
+              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs uppercase tracking-wider font-bold flex items-center gap-1.5 shadow-sm transition-colors"
+              title="Lock Owner Portal"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>Lock Portal</span>
+            </button>
+
+            <button
               id="cms-close-btn"
               onClick={() => setIsCMSOpen(false)}
               className="p-2 text-gray-400 hover:text-white"
+              title="Close CMS Window"
             >
               <X className="w-6 h-6" />
             </button>
@@ -1050,25 +1107,77 @@ export const CMSManagerModal: React.FC = () => {
                 {/* Photo Upload & Preview Left Column */}
                 <div className="lg:col-span-5 space-y-4">
                   <span className="text-xs uppercase tracking-wider text-[#B58E5B] font-bold block">
-                    FOUNDER PORTRAIT
+                    FOUNDER PORTRAIT & PHOTO UPLOAD
                   </span>
                   
-                  <div className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-[#121110] border border-gray-200 dark:border-gray-800 rounded-xl">
+                  <div className="flex flex-col items-center justify-center p-5 bg-gray-50 dark:bg-[#121110] border border-gray-200 dark:border-gray-800 rounded-xl space-y-4">
                     <div className="p-[3px] rounded-full bg-gradient-to-tr from-[#B58E5B] via-[#F3E3C3] to-[#8C6638] shadow-lg">
                       <div className="p-1 bg-white dark:bg-[#1C1B19] rounded-full">
-                        <div className="relative w-36 h-36 rounded-full overflow-hidden bg-gray-900">
+                        <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden bg-gray-900 group">
                           <img
                             src={founderData.photo}
                             alt={founderData.name}
                             className="w-full h-full object-cover object-top"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800';
+                              (e.target as HTMLImageElement).src = defaultFounderPhoto;
                             }}
                           />
+                          <button
+                            type="button"
+                            onClick={() => founderFileInputRef.current?.click()}
+                            className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs font-bold gap-1 cursor-pointer"
+                          >
+                            <Camera className="w-6 h-6 text-[#B58E5B]" />
+                            <span>Upload New Photo</span>
+                          </button>
                         </div>
                       </div>
                     </div>
-                    <span className="text-[10px] uppercase tracking-widest text-[#B58E5B] font-bold mt-3">INSTAGRAM CIRCLE PREVIEW</span>
+                    
+                    <span className="text-[10px] uppercase tracking-widest text-[#B58E5B] font-bold">LIVE WEBSITE PREVIEW</span>
+
+                    {/* Hidden Device File Input */}
+                    <input
+                      type="file"
+                      ref={founderFileInputRef}
+                      accept="image/*"
+                      onChange={handleFounderPhotoUpload}
+                      className="hidden"
+                    />
+
+                    {/* Upload Actions */}
+                    <div className="w-full space-y-3 pt-2 border-t border-gray-200 dark:border-gray-800">
+                      <button
+                        type="button"
+                        onClick={() => founderFileInputRef.current?.click()}
+                        className="w-full py-2.5 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-wider font-bold transition-colors shadow-sm flex items-center justify-center gap-2"
+                      >
+                        <UploadCloud className="w-4 h-4" />
+                        <span>Upload Photo From Device</span>
+                      </button>
+
+                      <div className="space-y-1">
+                        <label className="block text-[10px] uppercase tracking-wider text-gray-500 font-semibold">
+                          Or Paste Web Image URL:
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="url"
+                            placeholder="https://..."
+                            value={founderUrlInput}
+                            onChange={(e) => setFounderUrlInput(e.target.value)}
+                            className="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-[#1A1918] border border-gray-300 dark:border-gray-700 text-[#1F1F1F] dark:text-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleFounderUrlSubmit}
+                            className="px-3 py-1.5 bg-gray-800 text-white text-xs font-bold uppercase shrink-0 hover:bg-[#B58E5B]"
+                          >
+                            Set URL
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1099,6 +1208,30 @@ export const CMSManagerModal: React.FC = () => {
                         type="text"
                         value={founderData.title}
                         onChange={(e) => setFounderData(prev => ({ ...prev, title: e.target.value }))}
+                        className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-[#121110] border border-gray-300 dark:border-gray-700 text-[#1F1F1F] dark:text-white focus:border-[#B58E5B]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1 font-semibold">
+                        Founder Direct Email
+                      </label>
+                      <input
+                        type="email"
+                        value={founderData.email || 'workwithhomescapes@gmail.com'}
+                        onChange={(e) => setFounderData(prev => ({ ...prev, email: e.target.value }))}
+                        className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-[#121110] border border-gray-300 dark:border-gray-700 text-[#1F1F1F] dark:text-white focus:border-[#B58E5B]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-1 font-semibold">
+                        Founder Direct Phone
+                      </label>
+                      <input
+                        type="text"
+                        value={founderData.phone || '+91 7380334333'}
+                        onChange={(e) => setFounderData(prev => ({ ...prev, phone: e.target.value }))}
                         className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-[#121110] border border-gray-300 dark:border-gray-700 text-[#1F1F1F] dark:text-white focus:border-[#B58E5B]"
                       />
                     </div>
@@ -1144,6 +1277,86 @@ export const CMSManagerModal: React.FC = () => {
           )}
 
         </div>
+
+        {/* Custom Change PIN Dialog Modal */}
+        {showChangePinModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+            <div className="bg-[#1A1918] border border-[#B58E5B]/50 p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-left text-white rounded-none">
+              <div className="flex items-center justify-between border-b border-[#B58E5B]/30 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <KeyRound className="w-5 h-5 text-[#B58E5B]" />
+                  <h4 className="font-serif text-xl font-normal text-white">
+                    Update Owner Security PIN
+                  </h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowChangePinModal(false)}
+                  className="text-gray-400 hover:text-white p-1"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <p className="text-xs text-gray-300 font-light leading-relaxed">
+                Set a new 4-digit or custom security PIN for your Owner Portal. This PIN protects your website CMS settings when hosted online.
+              </p>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!newPinInput.trim() || newPinInput.trim().length < 4) {
+                    setPinNotice('PIN must be at least 4 characters long.');
+                    return;
+                  }
+                  const ok = changeOwnerPin(newPinInput.trim());
+                  if (ok) {
+                    setPinNotice('');
+                    setShowChangePinModal(false);
+                    showNotification('Owner Security PIN updated successfully!');
+                  }
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#B58E5B] font-semibold mb-2">
+                    New Security PIN
+                  </label>
+                  <input
+                    type="text"
+                    value={newPinInput}
+                    onChange={(e) => {
+                      setNewPinInput(e.target.value);
+                      setPinNotice('');
+                    }}
+                    placeholder="Enter new PIN (e.g. 5678)"
+                    autoFocus
+                    className="w-full px-4 py-3 bg-[#121110] border border-gray-700 focus:border-[#B58E5B] text-white text-base tracking-widest placeholder:text-gray-600 focus:outline-none"
+                  />
+                  {pinNotice && (
+                    <p className="text-xs text-red-400 mt-2 font-medium">{pinNotice}</p>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowChangePinModal(false)}
+                    className="px-4 py-2 border border-gray-700 text-xs uppercase tracking-wider text-gray-300 hover:bg-gray-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-[#B58E5B] hover:bg-white hover:text-[#121212] text-white text-xs uppercase tracking-wider font-bold transition-all"
+                  >
+                    Save New PIN
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Custom In-App Delete Confirmation Modal (Iframe & Cross-Browser Safe) */}
         {deleteTarget && (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStudio } from '../context/StudioContext';
-import { Search, Sun, Moon, Database, Calendar, Menu, X, ArrowRight, MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { Search, Sun, Moon, Database, Calendar, Menu, X, ArrowRight, MapPin, Phone, Mail, Clock, Lock } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const {
@@ -9,7 +9,7 @@ export const Header: React.FC = () => {
     theme,
     toggleTheme,
     setIsBookingOpen,
-    setIsCMSOpen,
+    openOwnerPortal,
     setIsSearchOpen
   } = useStudio();
 
@@ -65,7 +65,7 @@ export const Header: React.FC = () => {
             </span>
             <span className="flex items-center gap-1.5 font-medium">
               <Phone className="w-3.5 h-3.5 text-[#B58E5B]" />
-              <a href="tel:+91738033433" className="hover:text-[#B58E5B] transition-colors">+91 738033433</a>
+              <a href="tel:+917380334333" className="hover:text-[#B58E5B] transition-colors">+91 7380334333</a>
             </span>
             <span className="flex items-center gap-1.5 font-medium">
               <Mail className="w-3.5 h-3.5 text-[#B58E5B]" />
@@ -150,14 +150,14 @@ export const Header: React.FC = () => {
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </button>
 
-            {/* Owner CMS Manager Button */}
+            {/* Owner CMS Manager Button (PIN Protected) */}
             <button
               id="cms-open-btn"
-              onClick={() => setIsCMSOpen(true)}
+              onClick={openOwnerPortal}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold tracking-wider uppercase border border-[#B58E5B] bg-[#B58E5B]/10 dark:bg-[#B58E5B]/20 text-[#121212] dark:text-gray-100 hover:bg-[#B58E5B] hover:text-white transition-all shadow-xs"
-              title="Studio Owner Portal: Add & Manage Projects, Photos, Services & Content"
+              title="Studio Owner Portal: PIN Protected Access for Content & Photo Management"
             >
-              <Database className="w-3.5 h-3.5 text-[#B58E5B] group-hover:text-white" />
+              <Lock className="w-3.5 h-3.5 text-[#B58E5B] group-hover:text-white" />
               <span>Owner Portal</span>
             </button>
 
@@ -245,12 +245,12 @@ export const Header: React.FC = () => {
               id="mobile-cms-btn"
               onClick={() => {
                 setMobileMenuOpen(false);
-                setIsCMSOpen(true);
+                openOwnerPortal();
               }}
               className="w-full py-3 bg-[#B58E5B]/15 border border-[#B58E5B] text-[#121212] dark:text-white text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2"
             >
-              <Database className="w-4 h-4 text-[#B58E5B]" />
-              <span>Owner Portal: Add & Manage Projects</span>
+              <Lock className="w-4 h-4 text-[#B58E5B]" />
+              <span>Owner Portal (PIN Protected)</span>
             </button>
 
             <button

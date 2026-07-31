@@ -68,55 +68,80 @@ export const ContactSection: React.FC = () => {
           
           {/* Left Column: Contact Details & Interactive Google Map Mock */}
           <div className="lg:col-span-5 space-y-8">
-            <div className="glass-panel p-8 border border-[#D8CBBE]/50 dark:border-gray-800 space-y-6">
-              <h3 className="font-serif text-2xl font-normal text-[#1F1F1F] dark:text-white">
-                Homescapes Studio
-              </h3>
+            <div className="bg-[#1A1918] text-white p-8 border border-[#B58E5B]/50 shadow-2xl space-y-6">
+              <div>
+                <span className="text-[10px] uppercase tracking-[0.25em] text-[#B58E5B] font-bold block mb-1">
+                  OFFICIAL STUDIO HEADQUARTERS
+                </span>
+                <h3 className="font-serif text-2xl font-normal text-white">
+                  Homescapes Studio
+                </h3>
+              </div>
 
-              <div className="space-y-4 text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-light">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-[#B58E5B] shrink-0 mt-1" />
+              <div className="space-y-3.5">
+                {/* Studio Address */}
+                <div className="flex items-start gap-3.5 p-3.5 bg-[#121110] border border-[#B58E5B]/30 transition-colors hover:border-[#B58E5B]/60">
+                  <MapPin className="w-5 h-5 text-[#B58E5B] shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-medium text-[#1F1F1F] dark:text-white block">Studio Address</span>
-                    <span>Indira Nagar, Sugamau, Lucknow, Uttar Pradesh 226016, India</span>
+                    <span className="text-[10px] uppercase tracking-wider text-[#B58E5B] font-semibold block mb-0.5">
+                      Studio Address
+                    </span>
+                    <span className="text-sm text-gray-100 font-medium leading-relaxed block">
+                      Indira Nagar, Sugamau, Lucknow, Uttar Pradesh 226016, India
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <Phone className="w-4 h-4 text-[#B58E5B] shrink-0 mt-1" />
+                {/* Direct Telephone */}
+                <div className="flex items-start gap-3.5 p-3.5 bg-[#121110] border border-[#B58E5B]/30 transition-colors hover:border-[#B58E5B]/60">
+                  <Phone className="w-5 h-5 text-[#B58E5B] shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-medium text-[#1F1F1F] dark:text-white block">Direct Telephone</span>
-                    <span>+91 738033433</span>
+                    <span className="text-[10px] uppercase tracking-wider text-[#B58E5B] font-semibold block mb-0.5">
+                      Direct Telephone
+                    </span>
+                    <a href="tel:+917380334333" className="text-sm text-gray-100 font-medium hover:text-[#B58E5B] transition-colors block">
+                      +91 7380334333
+                    </a>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <Mail className="w-4 h-4 text-[#B58E5B] shrink-0 mt-1" />
+                {/* Inquiry Email */}
+                <div className="flex items-start gap-3.5 p-3.5 bg-[#121110] border border-[#B58E5B]/30 transition-colors hover:border-[#B58E5B]/60">
+                  <Mail className="w-5 h-5 text-[#B58E5B] shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-medium text-[#1F1F1F] dark:text-white block">Inquiry Email</span>
-                    <span>workwithhomescapes@gmail.com</span>
+                    <span className="text-[10px] uppercase tracking-wider text-[#B58E5B] font-semibold block mb-0.5">
+                      Inquiry Email
+                    </span>
+                    <a href="mailto:workwithhomescapes@gmail.com" className="text-sm text-gray-100 font-medium hover:text-[#B58E5B] transition-colors block">
+                      workwithhomescapes@gmail.com
+                    </a>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <Clock className="w-4 h-4 text-[#B58E5B] shrink-0 mt-1" />
+                {/* Business Hours */}
+                <div className="flex items-start gap-3.5 p-3.5 bg-[#121110] border border-[#B58E5B]/30 transition-colors hover:border-[#B58E5B]/60">
+                  <Clock className="w-5 h-5 text-[#B58E5B] shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-medium text-[#1F1F1F] dark:text-white block">Business Hours</span>
-                    <span>Monday – Saturday: 9:00 AM – 9:00 PM IST</span>
+                    <span className="text-[10px] uppercase tracking-wider text-[#B58E5B] font-semibold block mb-0.5">
+                      Business Hours
+                    </span>
+                    <span className="text-sm text-gray-100 font-medium block">
+                      Monday – Saturday: 9:00 AM – 9:00 PM IST
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Quick WhatsApp Inquiry */}
-              <div className="pt-4 border-t border-[#D8CBBE]/40 dark:border-gray-800">
+              <div className="pt-2">
                 <a
-                  href="https://wa.me/91738033433?text=Hello%20Homescapes%20Studio,%20I%20would%20like%20to%20inquire%20about%20an%20interior%20or%20architectural%20project%20in%20Lucknow%20or%20Pan-India."
+                  href="https://wa.me/917380334333?text=Hello%20Homescapes%20Studio,%20I%20would%20like%20to%20inquire%20about%20an%20interior%20or%20architectural%20project%20in%20Lucknow%20or%20Pan-India."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-3 bg-[#25D366] text-white text-xs uppercase tracking-widest font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                  className="w-full py-3.5 bg-[#25D366] text-white text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2 hover:bg-[#20ba5a] transition-all shadow-md"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span>CONNECT ON WHATSAPP</span>
+                  <span>CONNECT ON WHATSAPP (+91 7380334333)</span>
                 </a>
               </div>
             </div>
@@ -182,7 +207,7 @@ export const ContactSection: React.FC = () => {
                     </label>
                     <input
                       type="tel"
-                      placeholder="+91 738033433"
+                      placeholder="+91 7380334333"
                       value={formData.phone}
                       onChange={e => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-4 py-3 text-xs bg-white dark:bg-gray-900 border border-[#D8CBBE] dark:border-gray-700 focus:outline-none focus:border-[#B58E5B] text-[#1F1F1F] dark:text-white"

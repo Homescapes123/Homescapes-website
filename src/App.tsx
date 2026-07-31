@@ -19,6 +19,7 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
 import { CMSManagerModal } from './components/CMSManagerModal';
+import { OwnerAuthModal } from './components/OwnerAuthModal';
 import { SearchOverlay } from './components/SearchOverlay';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { BackToTop } from './components/BackToTop';
@@ -107,6 +108,7 @@ export default function App() {
         <Footer />
 
         {/* Overlays and Modals */}
+        <OwnerAuthModal />
         <BookingModal />
         <ProjectDetailModal />
         <BlogArticleModal />

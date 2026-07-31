@@ -17,7 +17,7 @@ export const FloatingWhatsApp: React.FC = () => {
 
       <a
         id="floating-whatsapp-btn"
-        href="https://wa.me/91738033433?text=Hello%20Homescapes%20Studio,%20I%20would%20like%20to%20discuss%20an%20interior%20or%20architectural%20project%20in%20India."
+        href="https://wa.me/917380334333?text=Hello%20Homescapes%20Studio,%20I%20would%20like%20to%20discuss%20an%20interior%20or%20architectural%20project%20in%20India."
         target="_blank"
         rel="noopener noreferrer"
         onMouseEnter={() => setShowTooltip(true)}

@@ -3,7 +3,7 @@ import { useStudio } from '../context/StudioContext';
 import { Mail, Instagram, Linkedin, Facebook, ArrowUp, Send, Check } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { setCurrentView, setIsBookingOpen, setIsCMSOpen } = useStudio();
+  const { setCurrentView, setIsBookingOpen, openOwnerPortal } = useStudio();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
 
@@ -126,7 +126,7 @@ export const Footer: React.FC = () => {
                 <button id="footer-link-contact" onClick={() => { setCurrentView('contact'); scrollToTop(); }} className="hover:text-[#B58E5B] transition-colors">Contact Studio</button>
               </li>
               <li>
-                <button id="footer-link-cms" onClick={() => setIsCMSOpen(true)} className="text-[#B58E5B] hover:underline transition-colors font-medium">Studio CMS Manager</button>
+                <button id="footer-link-cms" onClick={openOwnerPortal} className="text-[#B58E5B] hover:underline transition-colors font-medium">Owner Portal Login</button>
               </li>
             </ul>
           </div>
@@ -150,7 +150,7 @@ export const Footer: React.FC = () => {
             <div className="space-y-2 text-xs text-gray-400 font-light">
               <p>Indira Nagar, Sugamau</p>
               <p>Lucknow, Uttar Pradesh 226016, India</p>
-              <p className="pt-2 text-white font-medium">+91 738033433</p>
+              <p className="pt-2 text-white font-medium">+91 7380334333</p>
               <p className="text-[#B58E5B]">workwithhomescapes@gmail.com</p>
               <p className="text-gray-400 text-[11px] pt-1">Mon – Sat: 9:00 AM – 9:00 PM IST</p>
               

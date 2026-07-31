@@ -24,6 +24,8 @@ export const DEFAULT_FOUNDER_DATA: FounderData = {
   title: 'Founder & Principal Director, Homescapes Studio',
   role: 'DIRECTOR & FOUNDER',
   photo: defaultFounderPhoto,
+  email: 'workwithhomescapes@gmail.com',
+  phone: '+91 7380334333',
   quote: 'Our philosophy at Homescapes Studio is grounded in creating spaces that resonate with soul, elegance, and effortless luxury. Every villa, penthouse, or workspace we craft reflects the unique personality of its owner while maintaining absolute architectural integrity.',
   bio: "Under Hariom Srivastava's visionary leadership, Homescapes Studio is headquartered in Indira Nagar, Sugamau, Lucknow, and has spearheaded over 40 landmark luxury residential and commercial projects across Lucknow, Delhi NCR, Mumbai, Bengaluru, Hyderabad, and Goa.",
   achievements: [
@@ -53,6 +55,15 @@ interface StudioContextType {
   setIsSearchOpen: (open: boolean) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  // Security / Owner PIN state
+  ownerPin: string;
+  isOwnerAuthenticated: boolean;
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (open: boolean) => void;
+  openOwnerPortal: () => void;
+  authenticateOwner: (enteredPin: string) => boolean;
+  changeOwnerPin: (newPin: string) => boolean;
+  lockOwnerPortal: () => void;
   // Founder state
   founderData: FounderData;
   setFounderData: React.Dispatch<React.SetStateAction<FounderData>>;
@@ -88,6 +99,46 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isCMSOpen, setIsCMSOpen] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Security / Owner Portal PIN state
+  const [ownerPin, setOwnerPin] = useState<string>(() => {
+    return localStorage.getItem('homescapes_owner_pin') || '1234';
+  });
+  const [isOwnerAuthenticated, setIsOwnerAuthenticated] = useState<boolean>(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+
+  const openOwnerPortal = () => {
+    if (isOwnerAuthenticated) {
+      setIsCMSOpen(true);
+    } else {
+      setIsAuthModalOpen(true);
+    }
+  };
+
+  const authenticateOwner = (enteredPin: string): boolean => {
+    if (enteredPin.trim() === ownerPin) {
+      setIsOwnerAuthenticated(true);
+      setIsAuthModalOpen(false);
+      setIsCMSOpen(true);
+      return true;
+    }
+    return false;
+  };
+
+  const changeOwnerPin = (newPin: string): boolean => {
+    if (newPin && newPin.trim().length >= 4) {
+      const clean = newPin.trim();
+      setOwnerPin(clean);
+      localStorage.setItem('homescapes_owner_pin', clean);
+      return true;
+    }
+    return false;
+  };
+
+  const lockOwnerPortal = () => {
+    setIsOwnerAuthenticated(false);
+    setIsCMSOpen(false);
+  };
 
   // Helper to replace $ with ₹ in strings
   const sanitizeINR = (str: string) => (str ? str.replace(/\$/g, '₹') : str);
@@ -302,6 +353,14 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setIsSearchOpen,
         searchQuery,
         setSearchQuery,
+        ownerPin,
+        isOwnerAuthenticated,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+        openOwnerPortal,
+        authenticateOwner,
+        changeOwnerPin,
+        lockOwnerPortal,
         founderData,
         setFounderData,
         updateFounderPhoto,

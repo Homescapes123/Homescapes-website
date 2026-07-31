@@ -10,7 +10,7 @@ export const FeaturedProjects: React.FC = () => {
     setSelectedCategory,
     setSelectedProject,
     setCurrentView,
-    setIsCMSOpen
+    openOwnerPortal
   } = useStudio();
 
   const categories: PortfolioCategory[] = [
@@ -55,9 +55,9 @@ export const FeaturedProjects: React.FC = () => {
             {/* Direct Owner Action Button */}
             <button
               id="owner-add-project-btn"
-              onClick={() => setIsCMSOpen(true)}
+              onClick={openOwnerPortal}
               className="shrink-0 px-4 py-3 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-wider font-bold shadow-md flex items-center gap-2 transition-all border border-[#B58E5B]"
-              title="Add new project photos and details as studio owner"
+              title="Studio Owner Portal: PIN Protected Add Project"
             >
               <FolderPlus className="w-4 h-4" />
               <span>Owner: + Add Project & Photos</span>
