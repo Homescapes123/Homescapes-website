@@ -1,0 +1,6 @@
+{
+  "name": "Homescapes Studio - Luxury Interior Design Studio",
+  "description": "Ultra-luxury architectural & interior design studio with interactive project showcase, before/after slider, consultation booking, CMS manager, and blog.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
