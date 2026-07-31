@@ -12,7 +12,8 @@ import {
   Upload,
   Check,
   Mail,
-  Phone
+  Phone,
+  Lock
 } from 'lucide-react';
 import defaultFounderPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
 
@@ -22,11 +23,20 @@ export const AboutSection: React.FC = () => {
     setCurrentView,
     founderData,
     updateFounderPhoto,
-    openOwnerPortal
+    openOwnerPortal,
+    isOwnerAuthenticated
   } = useStudio();
 
   const [toastMsg, setToastMsg] = useState('');
   const founderFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoClick = () => {
+    if (!isOwnerAuthenticated) {
+      openOwnerPortal();
+    } else {
+      founderFileInputRef.current?.click();
+    }
+  };
 
   const compressProfilePhoto = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -256,15 +266,24 @@ export const AboutSection: React.FC = () => {
                       }}
                     />
                     
-                    {/* Hover Camera Overlay to Change Photo */}
+                    {/* Hover Camera Overlay to Change Photo (PIN Protected) */}
                     <button
                       type="button"
-                      onClick={() => founderFileInputRef.current?.click()}
+                      onClick={handlePhotoClick}
                       className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs font-bold gap-1 cursor-pointer"
-                      title="Click to Upload New Founder Photo From Your Device"
+                      title={isOwnerAuthenticated ? "Upload New Founder Photo" : "Owner PIN Required to Change Photo"}
                     >
-                      <Camera className="w-6 h-6 text-[#B58E5B]" />
-                      <span>Upload Photo</span>
+                      {isOwnerAuthenticated ? (
+                        <>
+                          <Camera className="w-6 h-6 text-[#B58E5B]" />
+                          <span>Upload Photo</span>
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-6 h-6 text-[#B58E5B]" />
+                          <span className="text-[10px]">Owner PIN Required</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -343,12 +362,12 @@ export const AboutSection: React.FC = () => {
 
                 <button
                   type="button"
-                  onClick={() => founderFileInputRef.current?.click()}
+                  onClick={handlePhotoClick}
                   className="px-4 py-2.5 border border-[#B58E5B] bg-[#B58E5B]/10 hover:bg-[#B58E5B] text-[#B58E5B] hover:text-white text-xs uppercase tracking-wider font-bold transition-all shadow-xs flex items-center gap-2"
-                  title="Upload Founder Photo From Your Device"
+                  title="Owner PIN Protected Photo Upload"
                 >
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Change Founder Photo</span>
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>{isOwnerAuthenticated ? "Upload Founder Photo" : "Owner: Change Photo"}</span>
                 </button>
 
                 <button
