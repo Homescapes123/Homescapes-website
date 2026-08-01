@@ -51,17 +51,6 @@ export const FeaturedProjects: React.FC = () => {
             <p className="max-w-md text-xs sm:text-sm text-gray-800 dark:text-gray-300 font-normal leading-relaxed">
               Explore our curated catalog of bespoke penthouses, coastal estates, and corporate spaces designed across India and internationally.
             </p>
-
-            {/* Direct Owner Action Button */}
-            <button
-              id="owner-add-project-btn"
-              onClick={openOwnerPortal}
-              className="shrink-0 px-4 py-3 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-wider font-bold shadow-md flex items-center gap-2 transition-all border border-[#B58E5B]"
-              title="Studio Owner Portal: PIN Protected Add Project"
-            >
-              <FolderPlus className="w-4 h-4" />
-              <span>Owner: + Add Project & Photos</span>
-            </button>
           </div>
         </div>
 

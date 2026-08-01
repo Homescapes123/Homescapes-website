@@ -39,11 +39,6 @@ export const Hero: React.FC = () => {
 
       {/* Floating Glassmorphism Hero Container */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center text-white space-y-8 mt-16">
-        {/* Subtle Eyebrow Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-[#B58E5B]/60 bg-black/30 backdrop-blur-md rounded-none text-[11px] uppercase tracking-[0.3em] text-[#E6C894] animate-fadeIn">
-          <Compass className="w-3.5 h-3.5 text-[#B58E5B]" />
-          <span>Architectural & Interior Design Studio</span>
-        </div>
 
         {/* Main Headline */}
         <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight leading-[1.08] text-white">

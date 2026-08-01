@@ -116,9 +116,6 @@ export const Footer: React.FC = () => {
               <li>
                 <button id="footer-link-contact" onClick={() => { setCurrentView('contact'); scrollToTop(); }} className="hover:text-[#B58E5B] transition-colors">Contact Studio</button>
               </li>
-              <li>
-                <button id="footer-link-cms" onClick={openOwnerPortal} className="text-[#B58E5B] hover:underline transition-colors font-medium">Owner Portal Login</button>
-              </li>
             </ul>
           </div>
 

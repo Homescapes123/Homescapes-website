@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StudioProvider, useStudio } from './context/StudioContext';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -24,7 +24,14 @@ import { IntroLoader } from './components/IntroLoader';
 import { LegalModals } from './components/LegalModals';
 
 const MainContent: React.FC = () => {
-  const { currentView } = useStudio();
+  const { currentView, openOwnerPortal } = useStudio();
+
+  useEffect(() => {
+    if (window.location.pathname === '/admin-portal') {
+      openOwnerPortal();
+      window.history.replaceState({}, '', '/');
+    }
+  }, [openOwnerPortal]);
 
   return (
     <main className="min-h-screen">

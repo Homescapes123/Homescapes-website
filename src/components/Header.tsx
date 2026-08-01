@@ -126,17 +126,6 @@ export const Header: React.FC = () => {
 
           {/* Right Action Controls */}
           <div className="hidden lg:flex items-center space-x-4">
-            {/* Owner CMS Manager Button (PIN Protected) */}
-            <button
-              id="cms-open-btn"
-              onClick={openOwnerPortal}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold tracking-wider uppercase border border-[#B58E5B] bg-[#B58E5B]/10 dark:bg-[#B58E5B]/20 text-[#121212] dark:text-gray-100 hover:bg-[#B58E5B] hover:text-white transition-all shadow-xs"
-              title="Studio Owner Portal: PIN Protected Access for Content & Photo Management"
-            >
-              <Lock className="w-3.5 h-3.5 text-[#B58E5B] group-hover:text-white" />
-              <span>Owner Portal</span>
-            </button>
-
             {/* Book Consultation CTA Button */}
             <button
               id="header-book-consultation-btn"
@@ -198,18 +187,6 @@ export const Header: React.FC = () => {
           </div>
 
           <div className="space-y-4 pt-6 border-t border-[#D8CBBE]/50 dark:border-gray-800">
-            <button
-              id="mobile-cms-btn"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                openOwnerPortal();
-              }}
-              className="w-full py-3 bg-[#B58E5B]/15 border border-[#B58E5B] text-[#121212] dark:text-white text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2"
-            >
-              <Lock className="w-4 h-4 text-[#B58E5B]" />
-              <span>Owner Portal (PIN Protected)</span>
-            </button>
-
             <button
               id="mobile-book-btn"
               onClick={() => {

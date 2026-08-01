@@ -369,15 +369,6 @@ export const AboutSection: React.FC = () => {
                   <Lock className="w-3.5 h-3.5" />
                   <span>{isOwnerAuthenticated ? "Upload Founder Photo" : "Owner: Change Photo"}</span>
                 </button>
-
-                <button
-                  type="button"
-                  onClick={openOwnerPortal}
-                  className="px-4 py-2.5 border border-gray-400 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-[#B58E5B] hover:text-[#B58E5B] text-xs uppercase tracking-wider font-semibold transition-all flex items-center gap-1.5"
-                  title="Open Owner CMS Portal"
-                >
-                  <span>Owner Portal</span>
-                </button>
               </div>
 
             </div>
