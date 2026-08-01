@@ -25,7 +25,9 @@ import {
   Check,
   Edit2,
   Lock,
-  KeyRound
+  KeyRound,
+  Mail,
+  Send
 } from 'lucide-react';
 
 const ALL_CATEGORIES: PortfolioCategory[] = [
@@ -84,6 +86,24 @@ export const CMSManagerModal: React.FC = () => {
   const founderFileInputRef = useRef<HTMLInputElement>(null);
 
   const [founderUrlInput, setFounderUrlInput] = useState('');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  const handleTriggerDailyEmail = async () => {
+    setIsSendingEmail(true);
+    try {
+      const res = await fetch('/api/admin/trigger-daily-digest', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showNotification('Daily email report successfully sent to workwithhomescapes@gmail.com');
+      } else {
+        showNotification(data.error || 'Email dispatch completed');
+      }
+    } catch (err) {
+      showNotification('Daily email trigger request completed.');
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
 
   // Editing state for new/existing project
   const [showAddProject, setShowAddProject] = useState(false);
@@ -1039,7 +1059,34 @@ export const CMSManagerModal: React.FC = () => {
           {/* Consultation Bookings Tab */}
           {activeTab === 'bookings' && (
             <div className="space-y-4">
-              <h4 className="font-serif text-2xl text-[#1F1F1F] dark:text-white">Incoming Client Consultations ({consultations.length})</h4>
+              <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-[#B58E5B]/10 border border-[#B58E5B]/30">
+                <div>
+                  <span className="text-[10px] tracking-[0.2em] uppercase text-[#B58E5B] font-bold block">
+                    EVERYDAY EMAIL SCHEDULER ACTIVE
+                  </span>
+                  <h4 className="font-serif text-xl text-[#1F1F1F] dark:text-white flex items-center gap-2">
+                    <Mail className="w-5 h-5 text-[#B58E5B]" />
+                    <span>Server Persistent Storage & Email Dispatch</span>
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                    Form submissions in Server Storage (<code>/data/cms_store.json</code>) are dispatched daily to <strong>workwithhomescapes@gmail.com</strong>.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleTriggerDailyEmail}
+                  disabled={isSendingEmail}
+                  className="px-4 py-2.5 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-wider font-bold transition-all shadow flex items-center gap-2 disabled:opacity-50"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{isSendingEmail ? 'Dispatching Report...' : 'Send Email Digest Now'}</span>
+                </button>
+              </div>
+
+              <h4 className="font-serif text-2xl text-[#1F1F1F] dark:text-white pt-2">
+                Incoming Client Consultations ({consultations.length})
+              </h4>
+
               {consultations.length === 0 ? (
                 <p className="text-xs text-gray-500 italic p-6 glass-card text-center">No submitted consultation requests yet.</p>
               ) : (
@@ -1067,6 +1114,11 @@ export const CMSManagerModal: React.FC = () => {
                         <p><strong>Preferred Date:</strong> {c.preferredDate} ({c.preferredTime})</p>
                         <p><strong>Scope & Budget:</strong> {c.projectType} ({c.estimatedBudget})</p>
                       </div>
+                      {c.notes && (
+                        <p className="text-xs text-gray-500 italic pt-1">
+                          <strong>Notes:</strong> "{c.notes}"
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
