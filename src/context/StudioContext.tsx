@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   ViewMode,
   PortfolioCategory,
@@ -224,6 +224,8 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return DEFAULT_FOUNDER_DATA;
   });
 
+  const isServerSyncLoadedRef = useRef(false);
+
   // Sync with server API on mount so changes reflect across all devices/browsers
   useEffect(() => {
     fetch('/api/cms/store')
@@ -244,7 +246,10 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           if (Array.isArray(data.consultations)) setConsultations(data.consultations);
         }
       })
-      .catch(err => console.info('Server sync initial fetch:', err));
+      .catch(err => console.info('Server sync initial fetch:', err))
+      .finally(() => {
+        isServerSyncLoadedRef.current = true;
+      });
   }, []);
 
   useEffect(() => {
@@ -253,6 +258,8 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } catch (e) {
       console.warn('LocalStorage quota exceeded saving founder data', e);
     }
+
+    if (!isServerSyncLoadedRef.current) return;
 
     // Sync updated founder data to server API so all users & devices see it
     fetch('/api/cms/founder', {
@@ -263,11 +270,37 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [founderData]);
 
   const updateFounderPhoto = (photoUrl: string) => {
-    setFounderData(prev => ({ ...prev, photo: photoUrl }));
+    setFounderData(prev => {
+      const updated = { ...prev, photo: photoUrl };
+      try {
+        localStorage.setItem('homescapes_founder_data_v4', JSON.stringify(updated));
+      } catch (e) {}
+
+      fetch('/api/cms/founder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      }).catch(err => console.warn('Direct upload server error:', err));
+
+      return updated;
+    });
   };
 
   const resetFounderPhoto = () => {
-    setFounderData(prev => ({ ...prev, photo: defaultFounderPhoto }));
+    setFounderData(prev => {
+      const updated = { ...prev, photo: defaultFounderPhoto };
+      try {
+        localStorage.setItem('homescapes_founder_data_v4', JSON.stringify(updated));
+      } catch (e) {}
+
+      fetch('/api/cms/founder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      }).catch(err => console.warn('Direct reset server error:', err));
+
+      return updated;
+    });
   };
 
   // Sync state to local storage and server API whenever updated
@@ -330,6 +363,8 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Sync overall store to server API when content changes
   useEffect(() => {
+    if (!isServerSyncLoadedRef.current) return;
+
     const timeout = setTimeout(() => {
       fetch('/api/cms/store', {
         method: 'POST',
