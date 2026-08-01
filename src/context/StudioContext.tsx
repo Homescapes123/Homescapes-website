@@ -224,12 +224,42 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return DEFAULT_FOUNDER_DATA;
   });
 
+  // Sync with server API on mount so changes reflect across all devices/browsers
+  useEffect(() => {
+    fetch('/api/cms/store')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && typeof data === 'object') {
+          if (data.founderData) {
+            if (!data.founderData.photo || data.founderData.photo.includes('unsplash.com')) {
+              data.founderData.photo = defaultFounderPhoto;
+            }
+            setFounderData(data.founderData);
+          }
+          if (Array.isArray(data.projects) && data.projects.length > 0) setProjects(data.projects);
+          if (Array.isArray(data.services) && data.services.length > 0) setServices(data.services);
+          if (Array.isArray(data.testimonials) && data.testimonials.length > 0) setTestimonials(data.testimonials);
+          if (Array.isArray(data.faqs) && data.faqs.length > 0) setFaqs(data.faqs);
+          if (Array.isArray(data.blogPosts) && data.blogPosts.length > 0) setBlogPosts(data.blogPosts);
+          if (Array.isArray(data.consultations)) setConsultations(data.consultations);
+        }
+      })
+      .catch(err => console.info('Server sync initial fetch:', err));
+  }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem('homescapes_founder_data_v4', JSON.stringify(founderData));
     } catch (e) {
       console.warn('LocalStorage quota exceeded saving founder data', e);
     }
+
+    // Sync updated founder data to server API so all users & devices see it
+    fetch('/api/cms/founder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(founderData),
+    }).catch(err => console.warn('Server sync error for founder photo:', err));
   }, [founderData]);
 
   const updateFounderPhoto = (photoUrl: string) => {
@@ -240,7 +270,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setFounderData(prev => ({ ...prev, photo: defaultFounderPhoto }));
   };
 
-  // Sync state to local storage whenever updated safely
+  // Sync state to local storage and server API whenever updated
   useEffect(() => {
     try {
       localStorage.setItem('homescapes_projects_v2', JSON.stringify(projects));
@@ -297,6 +327,26 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       console.warn('LocalStorage quota exceeded saving consultations', e);
     }
   }, [consultations]);
+
+  // Sync overall store to server API when content changes
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      fetch('/api/cms/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          founderData,
+          projects,
+          services,
+          testimonials,
+          faqs,
+          blogPosts,
+          consultations
+        })
+      }).catch(err => console.warn('Failed to sync full CMS store to server:', err));
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [founderData, projects, services, testimonials, faqs, blogPosts, consultations]);
 
   // Handle theme class on <html> element
   useEffect(() => {
