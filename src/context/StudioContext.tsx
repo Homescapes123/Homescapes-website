@@ -206,10 +206,17 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
 
   const [founderData, setFounderData] = useState<FounderData>(() => {
-    const saved = localStorage.getItem('homescapes_founder_data_v1');
+    localStorage.removeItem('homescapes_founder_data_v1');
+    localStorage.removeItem('homescapes_founder_data_v2');
+    localStorage.removeItem('homescapes_founder_data_v3');
+    const saved = localStorage.getItem('homescapes_founder_data_v4');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (!parsed.photo || parsed.photo.includes('unsplash.com') || parsed.photo.includes('photo-1507003211169')) {
+          parsed.photo = defaultFounderPhoto;
+        }
+        return parsed;
       } catch (e) {
         return DEFAULT_FOUNDER_DATA;
       }
@@ -219,7 +226,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     try {
-      localStorage.setItem('homescapes_founder_data_v1', JSON.stringify(founderData));
+      localStorage.setItem('homescapes_founder_data_v4', JSON.stringify(founderData));
     } catch (e) {
       console.warn('LocalStorage quota exceeded saving founder data', e);
     }
@@ -328,8 +335,11 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     localStorage.removeItem('maison_testimonials');
     localStorage.removeItem('maison_faqs');
     localStorage.removeItem('maison_blog_posts');
-    localStorage.removeItem('maison_consultations');
+    localStorage.removeItem('homescapes_consultations_v2');
     localStorage.removeItem('homescapes_founder_data_v1');
+    localStorage.removeItem('homescapes_founder_data_v2');
+    localStorage.removeItem('homescapes_founder_data_v3');
+    localStorage.removeItem('homescapes_founder_data_v4');
   };
 
   return (
