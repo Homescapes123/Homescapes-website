@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useStudio } from '../context/StudioContext';
-import { Search, Sun, Moon, Database, Calendar, Menu, X, ArrowRight, MapPin, Phone, Mail, Clock, Lock } from 'lucide-react';
+import { Calendar, Menu, X, ArrowRight, MapPin, Phone, Mail, Clock, Lock } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const {
     currentView,
     setCurrentView,
-    theme,
-    toggleTheme,
     setIsBookingOpen,
-    openOwnerPortal,
-    setIsSearchOpen
+    openOwnerPortal
   } = useStudio();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -35,7 +32,6 @@ export const Header: React.FC = () => {
     { label: 'About', view: 'about' as const },
     { label: 'Portfolio', view: 'portfolio' as const },
     { label: 'Services', view: 'services' as const },
-    { label: 'Blog', view: 'blog' as const },
     { label: 'Contact', view: 'contact' as const }
   ];
 
@@ -102,7 +98,7 @@ export const Header: React.FC = () => {
                 HOMESCAPES
               </span>
               <span className="block text-[9px] tracking-[0.35em] uppercase text-[#B58E5B]">
-                STUDIO DESIGN
+                STUDIO
               </span>
             </div>
           </button>
@@ -130,26 +126,6 @@ export const Header: React.FC = () => {
 
           {/* Right Action Controls */}
           <div className="hidden lg:flex items-center space-x-4">
-            {/* Search Button */}
-            <button
-              id="search-trigger-btn"
-              onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-[#1F1F1F] dark:text-gray-200 hover:text-[#B58E5B] dark:hover:text-[#B58E5B] transition-colors"
-              title="Search"
-            >
-              <Search className="w-4 h-4" />
-            </button>
-
-            {/* Dark / Light Mode Toggle */}
-            <button
-              id="theme-toggle-btn"
-              onClick={toggleTheme}
-              className="p-2 text-[#1F1F1F] dark:text-gray-200 hover:text-[#B58E5B] dark:hover:text-[#B58E5B] transition-colors"
-              title={theme === 'light' ? 'Switch to Noir Dark Mode' : 'Switch to Warm Light Mode'}
-            >
-              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-            </button>
-
             {/* Owner CMS Manager Button (PIN Protected) */}
             <button
               id="cms-open-btn"
@@ -174,13 +150,6 @@ export const Header: React.FC = () => {
 
           {/* Mobile Hamburger Toggle */}
           <div className="flex lg:hidden items-center space-x-2">
-            <button
-              id="mobile-search-btn"
-              onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-[#1F1F1F] dark:text-gray-200"
-            >
-              <Search className="w-5 h-5" />
-            </button>
             <button
               id="mobile-menu-toggle-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -229,18 +198,6 @@ export const Header: React.FC = () => {
           </div>
 
           <div className="space-y-4 pt-6 border-t border-[#D8CBBE]/50 dark:border-gray-800">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">Theme</span>
-              <button
-                id="mobile-theme-toggle-btn"
-                onClick={toggleTheme}
-                className="flex items-center gap-2 text-xs uppercase tracking-wider text-[#1F1F1F] dark:text-white"
-              >
-                {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-                <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
-              </button>
-            </div>
-
             <button
               id="mobile-cms-btn"
               onClick={() => {

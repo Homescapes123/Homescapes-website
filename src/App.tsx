@@ -12,15 +12,12 @@ import { TestimonialsSection } from './components/TestimonialsSection';
 import { BeforeAfterSlider } from './components/BeforeAfterSlider';
 import { StatisticsSection } from './components/StatisticsSection';
 import { FAQSection } from './components/FAQSection';
-import { BlogSection } from './components/BlogSection';
-import { BlogArticleModal } from './components/BlogArticleModal';
 import { InstagramFeed } from './components/InstagramFeed';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
 import { CMSManagerModal } from './components/CMSManagerModal';
 import { OwnerAuthModal } from './components/OwnerAuthModal';
-import { SearchOverlay } from './components/SearchOverlay';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { BackToTop } from './components/BackToTop';
 import { IntroLoader } from './components/IntroLoader';
@@ -43,7 +40,6 @@ const MainContent: React.FC = () => {
           <BeforeAfterSlider />
           <StatisticsSection />
           <FAQSection />
-          <BlogSection />
           <InstagramFeed />
           <ContactSection />
         </>
@@ -76,14 +72,6 @@ const MainContent: React.FC = () => {
         </div>
       )}
 
-      {currentView === 'blog' && (
-        <div className="pt-16">
-          <BlogSection />
-          <InstagramFeed />
-          <ContactSection />
-        </div>
-      )}
-
       {currentView === 'contact' && (
         <div className="pt-16">
           <ContactSection />
@@ -111,9 +99,7 @@ export default function App() {
         <OwnerAuthModal />
         <BookingModal />
         <ProjectDetailModal />
-        <BlogArticleModal />
         <CMSManagerModal />
-        <SearchOverlay />
         <FloatingWhatsApp />
         <BackToTop />
       </div>

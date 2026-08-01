@@ -91,14 +91,8 @@ export const Footer: React.FC = () => {
             </p>
 
             <div className="flex items-center space-x-4 pt-2">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-2 border border-gray-800 text-gray-400 hover:text-[#B58E5B] hover:border-[#B58E5B] transition-colors" title="Instagram">
+              <a href="https://instagram.com/homescapes.studio/" target="_blank" rel="noopener noreferrer" className="p-2 border border-gray-800 text-gray-400 hover:text-[#B58E5B] hover:border-[#B58E5B] transition-colors" title="Instagram">
                 <Instagram className="w-4 h-4" />
-              </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 border border-gray-800 text-gray-400 hover:text-[#B58E5B] hover:border-[#B58E5B] transition-colors" title="LinkedIn">
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="p-2 border border-gray-800 text-gray-400 hover:text-[#B58E5B] hover:border-[#B58E5B] transition-colors" title="Facebook">
-                <Facebook className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -118,9 +112,6 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <button id="footer-link-services" onClick={() => { setCurrentView('services'); scrollToTop(); }} className="hover:text-[#B58E5B] transition-colors">Architectural Services</button>
-              </li>
-              <li>
-                <button id="footer-link-blog" onClick={() => { setCurrentView('blog'); scrollToTop(); }} className="hover:text-[#B58E5B] transition-colors">Editorial Journal</button>
               </li>
               <li>
                 <button id="footer-link-contact" onClick={() => { setCurrentView('contact'); scrollToTop(); }} className="hover:text-[#B58E5B] transition-colors">Contact Studio</button>

@@ -48,35 +48,45 @@ async function startServer() {
 
   // Helper function to create Nodemailer Transporter
   const createEmailTransporter = async () => {
-    if (process.env.SMTP_HOST && process.env.SMTP_USER) {
-      return nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT) || 587,
-        secure: Boolean(process.env.SMTP_SECURE === "true"),
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
+    const user = process.env.SMTP_USER || process.env.GMAIL_USER;
+    const pass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+    const host = process.env.SMTP_HOST || (user ? 'smtp.gmail.com' : null);
+
+    if (host && user && pass) {
+      return {
+        isSandbox: false,
+        transporter: nodemailer.createTransport({
+          host,
+          port: Number(process.env.SMTP_PORT) || 587,
+          secure: Boolean(process.env.SMTP_SECURE === "true"),
+          auth: { user, pass },
+        })
+      };
     }
 
     // Fallback: Create test account if no SMTP provided
     try {
       const testAccount = await nodemailer.createTestAccount();
-      return nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
-      });
+      return {
+        isSandbox: true,
+        transporter: nodemailer.createTransport({
+          host: "smtp.ethereal.email",
+          port: 587,
+          secure: false,
+          auth: {
+            user: testAccount.user,
+            pass: testAccount.pass,
+          },
+        })
+      };
     } catch (err) {
       console.warn("Could not create Ethereal test account, fallback to direct send:", err);
-      return nodemailer.createTransport({
-        jsonTransport: true
-      });
+      return {
+        isSandbox: true,
+        transporter: nodemailer.createTransport({
+          jsonTransport: true
+        })
+      };
     }
   };
 
@@ -146,7 +156,7 @@ async function startServer() {
         </div>
       `;
 
-      const transporter = await createEmailTransporter();
+      const { transporter, isSandbox } = await createEmailTransporter();
       const mailOptions = {
         from: '"Homescapes Studio System" <no-reply@homescapes.in>',
         to: RECIPIENT_EMAIL,
@@ -162,7 +172,17 @@ async function startServer() {
         console.log(`[Ethereal Email Preview URL]: ${previewUrl}`);
       }
 
-      return { success: true, count: consultations.length, messageId: info.messageId, previewUrl };
+      return {
+        success: true,
+        count: consultations.length,
+        messageId: info.messageId,
+        isSandbox,
+        previewUrl: previewUrl || null,
+        recipient: RECIPIENT_EMAIL,
+        message: isSandbox
+          ? `Email report created for ${consultations.length} form submission(s). Running in sandbox mode because SMTP environment variables (SMTP_USER & SMTP_PASS) are not set.`
+          : `Daily form data report sent successfully to ${RECIPIENT_EMAIL}`
+      };
     } catch (err: any) {
       console.error("[Daily Scheduler Email Error]:", err);
       throw err;

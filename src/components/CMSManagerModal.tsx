@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useStudio } from '../context/StudioContext';
-import { Project, Service, Testimonial, FAQItem, BlogPost, PortfolioCategory } from '../types';
+import { Project, Service, Testimonial, FAQItem, BlogPost, PortfolioCategory, ConsultationBooking } from '../types';
 import defaultFounderPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
 import {
   X,
@@ -27,7 +27,8 @@ import {
   Lock,
   KeyRound,
   Mail,
-  Send
+  Send,
+  ExternalLink
 } from 'lucide-react';
 
 const ALL_CATEGORIES: PortfolioCategory[] = [
@@ -84,22 +85,316 @@ export const CMSManagerModal: React.FC = () => {
   const heroFileInputRef = useRef<HTMLInputElement>(null);
   const galleryFileInputRef = useRef<HTMLInputElement>(null);
   const founderFileInputRef = useRef<HTMLInputElement>(null);
+  const serviceFileInputRef = useRef<HTMLInputElement>(null);
+  const testimonialFileInputRef = useRef<HTMLInputElement>(null);
 
   const [founderUrlInput, setFounderUrlInput] = useState('');
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [lastEmailResult, setLastEmailResult] = useState<{
+    success?: boolean;
+    isSandbox?: boolean;
+    previewUrl?: string | null;
+    message?: string;
+  } | null>(null);
+
+  // --- Services CMS State & Handlers ---
+  const [showAddService, setShowAddService] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [serviceFeaturesInput, setServiceFeaturesInput] = useState('');
+  const [serviceDeliverablesInput, setServiceDeliverablesInput] = useState('');
+  const [newService, setNewService] = useState<Partial<Service>>({
+    title: '',
+    shortDescription: '',
+    fullDescription: '',
+    iconName: 'Building2',
+    features: [],
+    deliverables: [],
+    estimatedTimeline: '6–10 Weeks',
+    startingPrice: '₹1,50,000',
+    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800'
+  });
+
+  const resetServiceForm = () => {
+    setEditingServiceId(null);
+    setShowAddService(false);
+    setServiceFeaturesInput('');
+    setServiceDeliverablesInput('');
+    setNewService({
+      title: '',
+      shortDescription: '',
+      fullDescription: '',
+      iconName: 'Building2',
+      features: [],
+      deliverables: [],
+      estimatedTimeline: '6–10 Weeks',
+      startingPrice: '₹1,50,000',
+      image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800'
+    });
+  };
+
+  const startEditService = (s: Service) => {
+    setEditingServiceId(s.id);
+    setNewService({ ...s });
+    setServiceFeaturesInput(s.features ? s.features.join(', ') : '');
+    setServiceDeliverablesInput(s.deliverables ? s.deliverables.join(', ') : '');
+    setShowAddService(true);
+  };
+
+  const handleSaveService = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newService.title) return;
+
+    const features = serviceFeaturesInput
+      ? serviceFeaturesInput.split(',').map(f => f.trim()).filter(Boolean)
+      : (newService.features || []);
+
+    const deliverables = serviceDeliverablesInput
+      ? serviceDeliverablesInput.split(',').map(d => d.trim()).filter(Boolean)
+      : (newService.deliverables || []);
+
+    if (editingServiceId) {
+      setServices(prev =>
+        prev.map(s => s.id === editingServiceId ? {
+          ...s,
+          title: newService.title || s.title,
+          shortDescription: newService.shortDescription || s.shortDescription,
+          fullDescription: newService.fullDescription || s.fullDescription,
+          iconName: newService.iconName || s.iconName,
+          features,
+          deliverables,
+          estimatedTimeline: newService.estimatedTimeline || s.estimatedTimeline,
+          startingPrice: newService.startingPrice || s.startingPrice,
+          image: newService.image || s.image
+        } : s)
+      );
+      showNotification(`Updated service "${newService.title}" successfully!`);
+    } else {
+      const created: Service = {
+        id: 'serv-' + Date.now(),
+        title: newService.title || 'Bespoke Architectural Service',
+        shortDescription: newService.shortDescription || 'Full turn-key luxury interior solution.',
+        fullDescription: newService.fullDescription || 'Complete design, execution, material procurement, and project supervision.',
+        iconName: newService.iconName || 'Building2',
+        features: features.length > 0 ? features : ['Spatial Layouts', '3D Walkthroughs', 'Turnkey Execution'],
+        deliverables: deliverables.length > 0 ? deliverables : ['3D Renders', 'BOQ & Estimations', 'Site Handover'],
+        estimatedTimeline: newService.estimatedTimeline || '6–12 Weeks',
+        startingPrice: newService.startingPrice || '₹1,50,000',
+        image: newService.image || 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800'
+      };
+      setServices(prev => [...prev, created]);
+      showNotification(`Added new service "${created.title}"!`);
+    }
+    resetServiceForm();
+  };
+
+  const handleServiceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const base64 = await compressImage(file, 1000, 0.75);
+      if (base64) {
+        setNewService(prev => ({ ...prev, image: base64 }));
+        showNotification('Service image uploaded successfully!');
+      }
+    }
+  };
+
+  // --- Testimonials CMS State & Handlers ---
+  const [showAddTestimonial, setShowAddTestimonial] = useState(false);
+  const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
+  const [newTestimonial, setNewTestimonial] = useState<Partial<Testimonial>>({
+    clientName: '',
+    clientRole: 'Villa Owner',
+    location: 'Lucknow',
+    clientPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300',
+    projectTitle: 'Luxury Interior Residence',
+    rating: 5,
+    review: '',
+    date: '2026'
+  });
+
+  const resetTestimonialForm = () => {
+    setEditingTestimonialId(null);
+    setShowAddTestimonial(false);
+    setNewTestimonial({
+      clientName: '',
+      clientRole: 'Villa Owner',
+      location: 'Lucknow',
+      clientPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300',
+      projectTitle: 'Luxury Interior Residence',
+      rating: 5,
+      review: '',
+      date: '2026'
+    });
+  };
+
+  const startEditTestimonial = (t: Testimonial) => {
+    setEditingTestimonialId(t.id);
+    setNewTestimonial({ ...t });
+    setShowAddTestimonial(true);
+  };
+
+  const handleSaveTestimonial = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTestimonial.clientName) return;
+
+    if (editingTestimonialId) {
+      setTestimonials(prev =>
+        prev.map(t => t.id === editingTestimonialId ? {
+          ...t,
+          clientName: newTestimonial.clientName || t.clientName,
+          clientRole: newTestimonial.clientRole || t.clientRole,
+          location: newTestimonial.location || t.location,
+          clientPhoto: newTestimonial.clientPhoto || t.clientPhoto,
+          projectTitle: newTestimonial.projectTitle || t.projectTitle,
+          rating: newTestimonial.rating ?? t.rating,
+          review: newTestimonial.review || t.review,
+          date: newTestimonial.date || t.date
+        } : t)
+      );
+      showNotification(`Updated testimonial from "${newTestimonial.clientName}"!`);
+    } else {
+      const created: Testimonial = {
+        id: 'testi-' + Date.now(),
+        clientName: newTestimonial.clientName || 'Valued Client',
+        clientRole: newTestimonial.clientRole || 'Villa Owner',
+        location: newTestimonial.location || 'Lucknow',
+        clientPhoto: newTestimonial.clientPhoto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300',
+        projectTitle: newTestimonial.projectTitle || 'Bespoke Residence',
+        rating: newTestimonial.rating || 5,
+        review: newTestimonial.review || 'Flawless craftsmanship and prompt execution by the Homescapes team.',
+        date: newTestimonial.date || '2026',
+        featured: true
+      };
+      setTestimonials(prev => [created, ...prev]);
+      showNotification(`Added new testimonial from "${created.clientName}"!`);
+    }
+    resetTestimonialForm();
+  };
+
+  const handleTestimonialPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const base64 = await compressImage(file, 400, 0.75);
+      if (base64) {
+        setNewTestimonial(prev => ({ ...prev, clientPhoto: base64 }));
+        showNotification('Client portrait photo uploaded!');
+      }
+    }
+  };
+
+  // --- FAQs CMS State & Handlers ---
+  const [showAddFaq, setShowAddFaq] = useState(false);
+  const [editingFaqId, setEditingFaqId] = useState<string | null>(null);
+  const [newFaq, setNewFaq] = useState<Partial<FAQItem>>({
+    question: '',
+    answer: '',
+    category: 'Consultation'
+  });
+
+  const resetFaqForm = () => {
+    setEditingFaqId(null);
+    setShowAddFaq(false);
+    setNewFaq({
+      question: '',
+      answer: '',
+      category: 'Consultation'
+    });
+  };
+
+  const startEditFaq = (f: FAQItem) => {
+    setEditingFaqId(f.id);
+    setNewFaq({ ...f });
+    setShowAddFaq(true);
+  };
+
+  const handleSaveFaq = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFaq.question) return;
+
+    if (editingFaqId) {
+      setFaqs(prev =>
+        prev.map(f => f.id === editingFaqId ? {
+          ...f,
+          question: newFaq.question || f.question,
+          answer: newFaq.answer || f.answer,
+          category: (newFaq.category as any) || f.category
+        } : f)
+      );
+      showNotification(`Updated FAQ question!`);
+    } else {
+      const created: FAQItem = {
+        id: 'faq-' + Date.now(),
+        question: newFaq.question || 'How does Homescapes manage timelines?',
+        answer: newFaq.answer || 'We provide detailed milestone tracking and transparent project supervision.',
+        category: (newFaq.category as any) || 'Consultation'
+      };
+      setFaqs(prev => [...prev, created]);
+      showNotification(`Added new FAQ question!`);
+    }
+    resetFaqForm();
+  };
+
+  // --- Consultation Booking State & Handlers ---
+  const [editingConsultationId, setEditingConsultationId] = useState<string | null>(null);
+  const [editingConsultationData, setEditingConsultationData] = useState<Partial<ConsultationBooking>>({});
+
+  const handleUpdateConsultationStatus = (id: string, newStatus: 'Pending' | 'Confirmed' | 'Completed') => {
+    setConsultations(prev =>
+      prev.map(c => (c.id === id ? { ...c, status: newStatus } : c))
+    );
+    showNotification(`Consultation status updated to "${newStatus}"!`);
+  };
+
+  const startEditConsultation = (c: ConsultationBooking) => {
+    setEditingConsultationId(c.id);
+    setEditingConsultationData({ ...c });
+  };
+
+  const handleSaveConsultation = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingConsultationId) return;
+
+    setConsultations(prev =>
+      prev.map(c =>
+        c.id === editingConsultationId
+          ? {
+              ...c,
+              name: editingConsultationData.name || c.name,
+              email: editingConsultationData.email || c.email,
+              phone: editingConsultationData.phone || c.phone,
+              projectType: editingConsultationData.projectType || c.projectType,
+              estimatedBudget: editingConsultationData.estimatedBudget || c.estimatedBudget,
+              preferredDate: editingConsultationData.preferredDate || c.preferredDate,
+              preferredTime: editingConsultationData.preferredTime || c.preferredTime,
+              spaceType: editingConsultationData.spaceType || c.spaceType,
+              location: editingConsultationData.location || c.location,
+              notes: editingConsultationData.notes,
+              status: editingConsultationData.status || c.status
+            }
+          : c
+      )
+    );
+    showNotification(`Consultation details updated for "${editingConsultationData.name || 'client'}"!`);
+    setEditingConsultationId(null);
+    setEditingConsultationData({});
+  };
 
   const handleTriggerDailyEmail = async () => {
     setIsSendingEmail(true);
+    setLastEmailResult(null);
     try {
       const res = await fetch('/api/admin/trigger-daily-digest', { method: 'POST' });
       const data = await res.json();
       if (res.ok && data.success) {
-        showNotification('Daily email report successfully sent to workwithhomescapes@gmail.com');
+        setLastEmailResult(data.details || { success: true, message: data.message });
+        showNotification(data.details?.isSandbox ? 'Email generated in Ethereal test inbox!' : 'Daily email digest sent successfully!');
       } else {
+        setLastEmailResult({ success: false, message: data.error || 'Failed to dispatch email.' });
         showNotification(data.error || 'Email dispatch completed');
       }
-    } catch (err) {
-      showNotification('Daily email trigger request completed.');
+    } catch (err: any) {
+      setLastEmailResult({ success: false, message: 'Request failed. Check server logs.' });
+      showNotification('Email dispatch request attempted.');
     } finally {
       setIsSendingEmail(false);
     }
@@ -494,17 +789,6 @@ export const CMSManagerModal: React.FC = () => {
           >
             <HelpCircle className="w-4 h-4" />
             <span>FAQs ({faqs.length})</span>
-          </button>
-
-          <button
-            id="cms-tab-blog"
-            onClick={() => setActiveTab('blog')}
-            className={`px-4 py-2 text-xs uppercase tracking-wider flex items-center gap-2 transition-all ${
-              activeTab === 'blog' ? 'bg-[#B58E5B] text-white font-medium' : 'text-gray-600 dark:text-gray-300 hover:text-[#B58E5B]'
-            }`}
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>Articles ({blogPosts.length})</span>
           </button>
 
           <button
@@ -958,23 +1242,254 @@ export const CMSManagerModal: React.FC = () => {
 
           {/* Services Tab */}
           {activeTab === 'services' && (
-            <div className="space-y-4">
-              <h4 className="font-serif text-2xl text-[#1F1F1F] dark:text-white">Active Studio Services ({services.length})</h4>
-              <div className="space-y-3">
-                {services.map(s => (
-                  <div key={s.id} className="p-4 glass-card border border-[#D8CBBE]/40 dark:border-gray-800 flex items-center justify-between">
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D8CBBE]/40 dark:border-gray-800">
+                <div>
+                  <h4 className="font-serif text-2xl text-[#121212] dark:text-white flex items-center gap-2">
+                    <Wrench className="w-6 h-6 text-[#B58E5B]" />
+                    <span>Architectural Services Manager ({services.length})</span>
+                  </h4>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 font-normal mt-1">
+                    Add new studio services or update descriptions, timelines, deliverables, pricing, and service photos live on the website.
+                  </p>
+                </div>
+
+                <button
+                  id="cms-add-service-btn"
+                  type="button"
+                  onClick={() => {
+                    if (showAddService && !editingServiceId) {
+                      resetServiceForm();
+                    } else {
+                      resetServiceForm();
+                      setShowAddService(true);
+                    }
+                  }}
+                  className="px-5 py-2.5 bg-[#B58E5B] text-white text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2 hover:bg-[#121212] transition-colors shadow-sm shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Add New Service</span>
+                </button>
+              </div>
+
+              {/* Add / Edit Service Form Drawer */}
+              {showAddService && (
+                <form onSubmit={handleSaveService} className="p-6 glass-card border-2 border-[#B58E5B] space-y-6 animate-fadeIn bg-[#EDE6DC]/60 dark:bg-gray-900/90 rounded-none shadow-lg">
+                  <div className="flex items-center justify-between border-b border-[#B58E5B]/40 pb-3">
+                    <h5 className="font-serif text-xl font-normal text-[#121212] dark:text-white flex items-center gap-2">
+                      <Edit2 className="w-5 h-5 text-[#B58E5B]" />
+                      <span>{editingServiceId ? `Edit Service: ${newService.title}` : 'Create & Publish New Studio Service'}</span>
+                    </h5>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <h5 className="font-serif text-base font-normal text-[#1F1F1F] dark:text-white">{s.title}</h5>
-                      <p className="text-xs text-gray-500">{s.shortDescription}</p>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Service Title *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Turnkey Interior Architecture"
+                        value={newService.title || ''}
+                        onChange={e => setNewService({ ...newService, title: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
                     </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Service Icon Type
+                      </label>
+                      <select
+                        value={newService.iconName || 'Building2'}
+                        onChange={e => setNewService({ ...newService, iconName: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      >
+                        <option value="Building2">Building / Architecture</option>
+                        <option value="Palette">Palette / Interior Styling</option>
+                        <option value="Compass">Compass / Master Planning</option>
+                        <option value="DraftingCompass">Drafting / Blueprint Design</option>
+                        <option value="Home">Home / Residence</option>
+                        <option value="Ruler">Ruler / Bespoke Furniture</option>
+                        <option value="Sparkles">Sparkles / Luxury Styling</option>
+                        <option value="Layers">Layers / Material Curation</option>
+                        <option value="Wrench">Wrench / Turnkey Contracting</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Estimated Execution Timeline
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 8–12 Weeks"
+                        value={newService.estimatedTimeline || ''}
+                        onChange={e => setNewService({ ...newService, estimatedTimeline: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Starting Investment Price
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. ₹1,50,000"
+                        value={newService.startingPrice || ''}
+                        onChange={e => setNewService({ ...newService, startingPrice: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                      Short Description (Card Summary)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Brief 1-sentence summary for homepage grid..."
+                      value={newService.shortDescription || ''}
+                      onChange={e => setNewService({ ...newService, shortDescription: e.target.value })}
+                      className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                      Full Detailed Description
+                    </label>
+                    <textarea
+                      rows={3}
+                      placeholder="Comprehensive overview of what this service delivers..."
+                      value={newService.fullDescription || ''}
+                      onChange={e => setNewService({ ...newService, fullDescription: e.target.value })}
+                      className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Key Features (comma separated)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="3D Visualization, Material Selection, BOQ Preparation"
+                        value={serviceFeaturesInput}
+                        onChange={e => setServiceFeaturesInput(e.target.value)}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Client Deliverables (comma separated)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Architectural Blueprints, High-Res Renders, Site Handover"
+                        value={serviceDeliverablesInput}
+                        onChange={e => setServiceDeliverablesInput(e.target.value)}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Service Image File / URL */}
+                  <div className="space-y-3 bg-white/70 dark:bg-gray-800/60 p-4 border border-[#D8CBBE] dark:border-gray-700">
+                    <label className="block text-xs uppercase tracking-wider font-bold text-[#121212] dark:text-gray-200">
+                      Service Display Photo
+                    </label>
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                      {newService.image && (
+                        <img src={newService.image} alt="Service preview" className="w-24 h-16 object-cover border border-[#B58E5B] shrink-0" referrerPolicy="no-referrer" />
+                      )}
+                      <div className="flex-1 flex flex-col sm:flex-row items-center gap-3 w-full">
+                        <input type="file" ref={serviceFileInputRef} accept="image/*" onChange={handleServiceImageUpload} className="hidden" />
+                        <button
+                          type="button"
+                          onClick={() => serviceFileInputRef.current?.click()}
+                          className="px-4 py-2 bg-[#121212] dark:bg-[#B58E5B] text-white text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-[#B58E5B] transition-colors"
+                        >
+                          <UploadCloud className="w-4 h-4" />
+                          <span>Upload Photo</span>
+                        </button>
+                        <input
+                          type="url"
+                          placeholder="Or paste Image URL..."
+                          value={newService.image || ''}
+                          onChange={e => setNewService({ ...newService, image: e.target.value })}
+                          className="flex-1 px-3 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t border-[#B58E5B]/40">
                     <button
                       type="button"
-                      onClick={() => setDeleteTarget({ type: 'service', id: s.id, name: s.title })}
-                      className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                      title="Delete Service"
+                      onClick={resetServiceForm}
+                      className="px-5 py-2.5 text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 font-bold border border-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      Cancel
                     </button>
+                    <button
+                      type="submit"
+                      className="px-8 py-2.5 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-widest font-bold shadow-md transition-all flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{editingServiceId ? 'Save Updated Service' : 'Publish Service'}</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Existing Services List */}
+              <div className="space-y-3">
+                {services.map(s => (
+                  <div key={s.id} className="p-4 glass-card border border-[#D8CBBE]/60 dark:border-gray-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-[#B58E5B] transition-colors">
+                    <div className="flex items-start gap-4">
+                      {s.image && (
+                        <img src={s.image} alt={s.title} className="w-20 h-16 object-cover border border-[#D8CBBE] shrink-0" referrerPolicy="no-referrer" />
+                      )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h5 className="font-serif text-base font-medium text-[#121212] dark:text-white">{s.title}</h5>
+                          {s.startingPrice && (
+                            <span className="text-[10px] px-2 py-0.5 bg-[#B58E5B]/20 text-[#B58E5B] font-bold uppercase tracking-wider">
+                              From {s.startingPrice}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{s.shortDescription}</p>
+                        <p className="text-[11px] text-gray-500 mt-1">Timeline: {s.estimatedTimeline}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                      <button
+                        type="button"
+                        onClick={() => startEditService(s)}
+                        className="px-3 py-2 bg-[#121212] dark:bg-gray-800 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-[#B58E5B] transition-colors"
+                        title="Edit Service"
+                      >
+                        <Edit2 className="w-3.5 h-3.5 text-[#B58E5B]" />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget({ type: 'service', id: s.id, name: s.title })}
+                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                        title="Delete Service"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -983,23 +1498,231 @@ export const CMSManagerModal: React.FC = () => {
 
           {/* Testimonials Tab */}
           {activeTab === 'testimonials' && (
-            <div className="space-y-4">
-              <h4 className="font-serif text-2xl text-[#1F1F1F] dark:text-white">Client Testimonials ({testimonials.length})</h4>
-              <div className="space-y-3">
-                {testimonials.map(t => (
-                  <div key={t.id} className="p-4 glass-card border border-[#D8CBBE]/40 dark:border-gray-800 flex items-center justify-between">
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D8CBBE]/40 dark:border-gray-800">
+                <div>
+                  <h4 className="font-serif text-2xl text-[#121212] dark:text-white flex items-center gap-2">
+                    <MessageSquare className="w-6 h-6 text-[#B58E5B]" />
+                    <span>Client Testimonials Manager ({testimonials.length})</span>
+                  </h4>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 font-normal mt-1">
+                    Add new client reviews, edit existing quotes, client photos, star ratings, or update project titles.
+                  </p>
+                </div>
+
+                <button
+                  id="cms-add-testimonial-btn"
+                  type="button"
+                  onClick={() => {
+                    if (showAddTestimonial && !editingTestimonialId) {
+                      resetTestimonialForm();
+                    } else {
+                      resetTestimonialForm();
+                      setShowAddTestimonial(true);
+                    }
+                  }}
+                  className="px-5 py-2.5 bg-[#B58E5B] text-white text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2 hover:bg-[#121212] transition-colors shadow-sm shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Add New Testimonial</span>
+                </button>
+              </div>
+
+              {/* Add / Edit Testimonial Form Drawer */}
+              {showAddTestimonial && (
+                <form onSubmit={handleSaveTestimonial} className="p-6 glass-card border-2 border-[#B58E5B] space-y-6 animate-fadeIn bg-[#EDE6DC]/60 dark:bg-gray-900/90 rounded-none shadow-lg">
+                  <div className="flex items-center justify-between border-b border-[#B58E5B]/40 pb-3">
+                    <h5 className="font-serif text-xl font-normal text-[#121212] dark:text-white flex items-center gap-2">
+                      <Edit2 className="w-5 h-5 text-[#B58E5B]" />
+                      <span>{editingTestimonialId ? `Edit Review: ${newTestimonial.clientName}` : 'Add New Client Testimonial'}</span>
+                    </h5>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
-                      <h5 className="font-serif text-base font-normal text-[#1F1F1F] dark:text-white">{t.clientName}</h5>
-                      <p className="text-xs text-gray-500 italic">"{t.review.substring(0, 100)}..."</p>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Client Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Vikramaditya Sharma"
+                        value={newTestimonial.clientName || ''}
+                        onChange={e => setNewTestimonial({ ...newTestimonial, clientName: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
                     </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Client Designation / Title
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Luxury Villa Owner"
+                        value={newTestimonial.clientRole || ''}
+                        onChange={e => setNewTestimonial({ ...newTestimonial, clientRole: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        City / Location
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Gomti Nagar, Lucknow"
+                        value={newTestimonial.location || ''}
+                        onChange={e => setNewTestimonial({ ...newTestimonial, location: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Project Name / Room
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 5,000 sq.ft. Penthouse"
+                        value={newTestimonial.projectTitle || ''}
+                        onChange={e => setNewTestimonial({ ...newTestimonial, projectTitle: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Star Rating (1 to 5)
+                      </label>
+                      <select
+                        value={newTestimonial.rating || 5}
+                        onChange={e => setNewTestimonial({ ...newTestimonial, rating: Number(e.target.value) })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      >
+                        <option value={5}>5 Stars ★★★★★</option>
+                        <option value={4}>4 Stars ★★★★☆</option>
+                        <option value={3}>3 Stars ★★★☆☆</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Year / Date
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 2026"
+                        value={newTestimonial.date || ''}
+                        onChange={e => setNewTestimonial({ ...newTestimonial, date: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                      Full Client Review Quote *
+                    </label>
+                    <textarea
+                      rows={4}
+                      required
+                      placeholder="Enter the full testimonial statement..."
+                      value={newTestimonial.review || ''}
+                      onChange={e => setNewTestimonial({ ...newTestimonial, review: e.target.value })}
+                      className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                    />
+                  </div>
+
+                  {/* Client Photo */}
+                  <div className="space-y-3 bg-white/70 dark:bg-gray-800/60 p-4 border border-[#D8CBBE] dark:border-gray-700">
+                    <label className="block text-xs uppercase tracking-wider font-bold text-[#121212] dark:text-gray-200">
+                      Client Portrait / Avatar Photo
+                    </label>
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                      {newTestimonial.clientPhoto && (
+                        <img src={newTestimonial.clientPhoto} alt="Client preview" className="w-14 h-14 rounded-full object-cover border-2 border-[#B58E5B] shrink-0" referrerPolicy="no-referrer" />
+                      )}
+                      <div className="flex-1 flex flex-col sm:flex-row items-center gap-3 w-full">
+                        <input type="file" ref={testimonialFileInputRef} accept="image/*" onChange={handleTestimonialPhotoUpload} className="hidden" />
+                        <button
+                          type="button"
+                          onClick={() => testimonialFileInputRef.current?.click()}
+                          className="px-4 py-2 bg-[#121212] dark:bg-[#B58E5B] text-white text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-[#B58E5B] transition-colors"
+                        >
+                          <UploadCloud className="w-4 h-4" />
+                          <span>Upload Photo</span>
+                        </button>
+                        <input
+                          type="url"
+                          placeholder="Or paste Photo URL..."
+                          value={newTestimonial.clientPhoto || ''}
+                          onChange={e => setNewTestimonial({ ...newTestimonial, clientPhoto: e.target.value })}
+                          className="flex-1 px-3 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t border-[#B58E5B]/40">
                     <button
                       type="button"
-                      onClick={() => setDeleteTarget({ type: 'testimonial', id: t.id, name: t.clientName })}
-                      className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                      title="Delete Testimonial"
+                      onClick={resetTestimonialForm}
+                      className="px-5 py-2.5 text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 font-bold border border-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      Cancel
                     </button>
+                    <button
+                      type="submit"
+                      className="px-8 py-2.5 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-widest font-bold shadow-md transition-all flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{editingTestimonialId ? 'Save Updated Testimonial' : 'Publish Testimonial'}</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Testimonials List */}
+              <div className="space-y-3">
+                {testimonials.map(t => (
+                  <div key={t.id} className="p-4 glass-card border border-[#D8CBBE]/60 dark:border-gray-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-[#B58E5B] transition-colors">
+                    <div className="flex items-start gap-4">
+                      {t.clientPhoto && (
+                        <img src={t.clientPhoto} alt={t.clientName} className="w-12 h-12 rounded-full object-cover border border-[#D8CBBE] shrink-0" referrerPolicy="no-referrer" />
+                      )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h5 className="font-serif text-base font-medium text-[#121212] dark:text-white">{t.clientName}</h5>
+                          <span className="text-xs text-[#B58E5B]">{'★'.repeat(t.rating || 5)}</span>
+                          <span className="text-[10px] text-gray-400">({t.location})</span>
+                        </div>
+                        <p className="text-xs text-gray-700 dark:text-gray-300 italic mt-1 font-serif">"{t.review}"</p>
+                        <p className="text-[11px] text-gray-500 mt-1">{t.clientRole} • Project: {t.projectTitle}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                      <button
+                        type="button"
+                        onClick={() => startEditTestimonial(t)}
+                        className="px-3 py-2 bg-[#121212] dark:bg-gray-800 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-[#B58E5B] transition-colors"
+                        title="Edit Testimonial"
+                      >
+                        <Edit2 className="w-3.5 h-3.5 text-[#B58E5B]" />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget({ type: 'testimonial', id: t.id, name: t.clientName })}
+                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                        title="Delete Testimonial"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1008,48 +1731,145 @@ export const CMSManagerModal: React.FC = () => {
 
           {/* FAQs Tab */}
           {activeTab === 'faqs' && (
-            <div className="space-y-4">
-              <h4 className="font-serif text-2xl text-[#1F1F1F] dark:text-white">Manage FAQs ({faqs.length})</h4>
-              <div className="space-y-3">
-                {faqs.map(f => (
-                  <div key={f.id} className="p-4 glass-card border border-[#D8CBBE]/40 dark:border-gray-800 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] uppercase text-[#B58E5B]">{f.category}</span>
-                      <h5 className="font-serif text-base font-normal text-[#1F1F1F] dark:text-white">{f.question}</h5>
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D8CBBE]/40 dark:border-gray-800">
+                <div>
+                  <h4 className="font-serif text-2xl text-[#121212] dark:text-white flex items-center gap-2">
+                    <HelpCircle className="w-6 h-6 text-[#B58E5B]" />
+                    <span>Frequently Asked Questions Manager ({faqs.length})</span>
+                  </h4>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 font-normal mt-1">
+                    Add new FAQ entries or update questions, answers, and category tags live on the website.
+                  </p>
+                </div>
+
+                <button
+                  id="cms-add-faq-btn"
+                  type="button"
+                  onClick={() => {
+                    if (showAddFaq && !editingFaqId) {
+                      resetFaqForm();
+                    } else {
+                      resetFaqForm();
+                      setShowAddFaq(true);
+                    }
+                  }}
+                  className="px-5 py-2.5 bg-[#B58E5B] text-white text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2 hover:bg-[#121212] transition-colors shadow-sm shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Add New FAQ Question</span>
+                </button>
+              </div>
+
+              {/* Add / Edit FAQ Form Drawer */}
+              {showAddFaq && (
+                <form onSubmit={handleSaveFaq} className="p-6 glass-card border-2 border-[#B58E5B] space-y-6 animate-fadeIn bg-[#EDE6DC]/60 dark:bg-gray-900/90 rounded-none shadow-lg">
+                  <div className="flex items-center justify-between border-b border-[#B58E5B]/40 pb-3">
+                    <h5 className="font-serif text-xl font-normal text-[#121212] dark:text-white flex items-center gap-2">
+                      <Edit2 className="w-5 h-5 text-[#B58E5B]" />
+                      <span>{editingFaqId ? 'Edit FAQ Item' : 'Add New FAQ Question'}</span>
+                    </h5>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Question *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. What is the typical timeframe for a full villa renovation?"
+                        value={newFaq.question || ''}
+                        onChange={e => setNewFaq({ ...newFaq, question: e.target.value })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
                     </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Category Tag
+                      </label>
+                      <select
+                        value={newFaq.category || 'Consultation'}
+                        onChange={e => setNewFaq({ ...newFaq, category: e.target.value as any })}
+                        className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      >
+                        <option value="Consultation">Consultation</option>
+                        <option value="Cost">Cost & Budget</option>
+                        <option value="Timeline">Timeline & Delivery</option>
+                        <option value="Design Process">Design Process</option>
+                        <option value="Materials">Materials & Finishes</option>
+                        <option value="Warranty">Warranty & Execution</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                      Detailed Answer *
+                    </label>
+                    <textarea
+                      rows={4}
+                      required
+                      placeholder="Provide a clear, reassuring answer for clients..."
+                      value={newFaq.answer || ''}
+                      onChange={e => setNewFaq({ ...newFaq, answer: e.target.value })}
+                      className="w-full px-4 py-2.5 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t border-[#B58E5B]/40">
                     <button
                       type="button"
-                      onClick={() => setDeleteTarget({ type: 'faq', id: f.id, name: f.question })}
-                      className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                      title="Delete FAQ"
+                      onClick={resetFaqForm}
+                      className="px-5 py-2.5 text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 font-bold border border-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-8 py-2.5 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-widest font-bold shadow-md transition-all flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{editingFaqId ? 'Save Updated Question' : 'Publish FAQ Question'}</span>
                     </button>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                </form>
+              )}
 
-          {/* Blog Tab */}
-          {activeTab === 'blog' && (
-            <div className="space-y-4">
-              <h4 className="font-serif text-2xl text-[#1F1F1F] dark:text-white">Editorial Articles ({blogPosts.length})</h4>
+              {/* FAQs List */}
               <div className="space-y-3">
-                {blogPosts.map(b => (
-                  <div key={b.id} className="p-4 glass-card border border-[#D8CBBE]/40 dark:border-gray-800 flex items-center justify-between">
-                    <div>
-                      <h5 className="font-serif text-base font-normal text-[#1F1F1F] dark:text-white">{b.title}</h5>
-                      <p className="text-xs text-gray-500">{b.publishedDate} • {b.category}</p>
+                {faqs.map(f => (
+                  <div key={f.id} className="p-4 glass-card border border-[#D8CBBE]/60 dark:border-gray-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-[#B58E5B] transition-colors">
+                    <div className="space-y-1">
+                      <span className="text-[10px] px-2 py-0.5 bg-[#B58E5B]/20 text-[#B58E5B] font-bold uppercase tracking-wider inline-block">
+                        {f.category}
+                      </span>
+                      <h5 className="font-serif text-base font-medium text-[#121212] dark:text-white">{f.question}</h5>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{f.answer}</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteTarget({ type: 'blog', id: b.id, name: b.title })}
-                      className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                      title="Delete Article"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                      <button
+                        type="button"
+                        onClick={() => startEditFaq(f)}
+                        className="px-3 py-2 bg-[#121212] dark:bg-gray-800 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-[#B58E5B] transition-colors"
+                        title="Edit FAQ Question"
+                      >
+                        <Edit2 className="w-3.5 h-3.5 text-[#B58E5B]" />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget({ type: 'faq', id: f.id, name: f.question })}
+                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                        title="Delete FAQ"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1076,51 +1896,304 @@ export const CMSManagerModal: React.FC = () => {
                   type="button"
                   onClick={handleTriggerDailyEmail}
                   disabled={isSendingEmail}
-                  className="px-4 py-2.5 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-wider font-bold transition-all shadow flex items-center gap-2 disabled:opacity-50"
+                  className="px-4 py-2.5 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-wider font-bold transition-all shadow flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
                   <span>{isSendingEmail ? 'Dispatching Report...' : 'Send Email Digest Now'}</span>
                 </button>
               </div>
 
-              <h4 className="font-serif text-2xl text-[#1F1F1F] dark:text-white pt-2">
-                Incoming Client Consultations ({consultations.length})
-              </h4>
+              {lastEmailResult && (
+                <div className={`p-4 border text-xs space-y-2 ${lastEmailResult.success ? 'bg-[#C5A059]/10 border-[#C5A059]/40 text-gray-200' : 'bg-red-500/10 border-red-500/40 text-red-200'}`}>
+                  <p className="font-semibold text-sm">
+                    {lastEmailResult.isSandbox ? '⚡ Sandbox Test Delivery Completed' : lastEmailResult.message}
+                  </p>
+                  <p className="text-gray-300">
+                    {lastEmailResult.isSandbox ? (
+                      <>
+                        Because SMTP credentials (<code>SMTP_USER</code> / <code>SMTP_PASS</code> or <code>GMAIL_APP_PASSWORD</code>) are not configured in environment variables, Nodemailer generated the complete HTML email report in an <strong>Ethereal Sandbox Preview</strong>.
+                      </>
+                    ) : (
+                      lastEmailResult.message
+                    )}
+                  </p>
+                  {lastEmailResult.previewUrl && (
+                    <div className="pt-1">
+                      <a
+                        href={lastEmailResult.previewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#C5A059] text-black font-bold uppercase tracking-wider text-[11px] hover:bg-white transition-colors"
+                      >
+                        <span>View Sent Email Report in Ethereal Sandbox</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  )}
+                  {lastEmailResult.isSandbox && (
+                    <div className="pt-2 border-t border-gray-700/50 text-[11px] text-gray-400">
+                      💡 <strong>To receive live inbox emails directly to workwithhomescapes@gmail.com:</strong>
+                      <br />
+                      Set <code>SMTP_HOST</code> (e.g. <code>smtp.gmail.com</code>), <code>SMTP_USER</code> (your email address), and <code>SMTP_PASS</code> (or Gmail App Password) in your App Secrets / Environment Variables.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 pb-2">
+                <h4 className="font-serif text-2xl text-[#121212] dark:text-white">
+                  Incoming Client Consultations ({consultations.length})
+                </h4>
+                <div className="text-xs text-gray-500">
+                  Update consultation statuses (Pending / Confirmed / Completed) or edit consultation details live.
+                </div>
+              </div>
+
+              {/* Consultation Edit Drawer / Form */}
+              {editingConsultationId && (
+                <form onSubmit={handleSaveConsultation} className="p-6 glass-card border-2 border-[#B58E5B] space-y-5 animate-fadeIn bg-[#EDE6DC]/80 dark:bg-gray-900/90 rounded-none shadow-xl">
+                  <div className="flex items-center justify-between border-b border-[#B58E5B]/40 pb-3">
+                    <h5 className="font-serif text-xl font-normal text-[#121212] dark:text-white flex items-center gap-2">
+                      <Edit2 className="w-5 h-5 text-[#B58E5B]" />
+                      <span>Edit Consultation Booking #{editingConsultationId}</span>
+                    </h5>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingConsultationId(null);
+                        setEditingConsultationData({});
+                      }}
+                      className="p-1 text-gray-500 hover:text-black dark:hover:text-white"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Consultation Status / State *
+                      </label>
+                      <select
+                        value={editingConsultationData.status || 'Pending'}
+                        onChange={e => setEditingConsultationData({ ...editingConsultationData, status: e.target.value as any })}
+                        className="w-full px-4 py-2.5 text-xs font-bold border border-[#B58E5B] bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      >
+                        <option value="Pending">● Pending Review</option>
+                        <option value="Confirmed">✓ Confirmed & Scheduled</option>
+                        <option value="Completed">★ Consultation Completed</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Client Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editingConsultationData.name || ''}
+                        onChange={e => setEditingConsultationData({ ...editingConsultationData, name: e.target.value })}
+                        className="w-full px-4 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        value={editingConsultationData.phone || ''}
+                        onChange={e => setEditingConsultationData({ ...editingConsultationData, phone: e.target.value })}
+                        className="w-full px-4 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={editingConsultationData.email || ''}
+                        onChange={e => setEditingConsultationData({ ...editingConsultationData, email: e.target.value })}
+                        className="w-full px-4 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Preferred Date
+                      </label>
+                      <input
+                        type="text"
+                        value={editingConsultationData.preferredDate || ''}
+                        onChange={e => setEditingConsultationData({ ...editingConsultationData, preferredDate: e.target.value })}
+                        className="w-full px-4 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Preferred Time Slot
+                      </label>
+                      <input
+                        type="text"
+                        value={editingConsultationData.preferredTime || ''}
+                        onChange={e => setEditingConsultationData({ ...editingConsultationData, preferredTime: e.target.value })}
+                        className="w-full px-4 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Scope / Project Type
+                      </label>
+                      <input
+                        type="text"
+                        value={editingConsultationData.projectType || ''}
+                        onChange={e => setEditingConsultationData({ ...editingConsultationData, projectType: e.target.value })}
+                        className="w-full px-4 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        Estimated Budget
+                      </label>
+                      <input
+                        type="text"
+                        value={editingConsultationData.estimatedBudget || ''}
+                        onChange={e => setEditingConsultationData({ ...editingConsultationData, estimatedBudget: e.target.value })}
+                        className="w-full px-4 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                        City / Location
+                      </label>
+                      <input
+                        type="text"
+                        value={editingConsultationData.location || ''}
+                        onChange={e => setEditingConsultationData({ ...editingConsultationData, location: e.target.value })}
+                        className="w-full px-4 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider font-bold text-[#121212] dark:text-gray-300 mb-1">
+                      Notes & Requirements
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={editingConsultationData.notes || ''}
+                      onChange={e => setEditingConsultationData({ ...editingConsultationData, notes: e.target.value })}
+                      className="w-full px-4 py-2 text-xs border border-[#D8CBBE] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#121212] dark:text-white"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-3 border-t border-[#B58E5B]/40">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingConsultationId(null);
+                        setEditingConsultationData({});
+                      }}
+                      className="px-5 py-2 text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 font-bold border border-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2 bg-[#B58E5B] hover:bg-[#121212] text-white text-xs uppercase tracking-widest font-bold transition-all flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Save Consultation Updates</span>
+                    </button>
+                  </div>
+                </form>
+              )}
 
               {consultations.length === 0 ? (
                 <p className="text-xs text-gray-500 italic p-6 glass-card text-center">No submitted consultation requests yet.</p>
               ) : (
-                <div className="space-y-3">
-                  {consultations.map(c => (
-                    <div key={c.id} className="p-4 glass-card border border-[#D8CBBE]/40 dark:border-gray-800 space-y-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h5 className="font-serif text-lg font-medium text-[#1F1F1F] dark:text-white">{c.name}</h5>
-                          <p className="text-xs text-gray-500">{c.email} • {c.phone}</p>
+                <div className="space-y-4">
+                  {consultations.map(c => {
+                    const statusColorClass =
+                      c.status === 'Confirmed'
+                        ? 'bg-emerald-700 text-white border-emerald-800'
+                        : c.status === 'Completed'
+                        ? 'bg-blue-700 text-white border-blue-800'
+                        : 'bg-amber-600 text-white border-amber-700';
+
+                    return (
+                      <div key={c.id} className="p-5 glass-card border border-[#D8CBBE]/60 dark:border-gray-800 space-y-3 hover:border-[#B58E5B] transition-colors">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h5 className="font-serif text-lg font-medium text-[#121212] dark:text-white">{c.name}</h5>
+                              <span className="text-[11px] text-gray-500 dark:text-gray-400">({c.location || 'Lucknow'})</span>
+                            </div>
+                            <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">
+                              📞 {c.phone} • ✉️ {c.email}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-3 self-end sm:self-auto">
+                            {/* State / Status Dropdown Selector */}
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] uppercase font-bold text-gray-500 dark:text-gray-400">Status:</span>
+                              <select
+                                value={c.status || 'Pending'}
+                                onChange={e => handleUpdateConsultationStatus(c.id, e.target.value as any)}
+                                className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider border rounded-none shadow-sm cursor-pointer transition-all ${statusColorClass}`}
+                              >
+                                <option value="Pending" className="bg-white text-black dark:bg-gray-900 dark:text-white">● Pending Review</option>
+                                <option value="Confirmed" className="bg-white text-black dark:bg-gray-900 dark:text-white">✓ Confirmed & Scheduled</option>
+                                <option value="Completed" className="bg-white text-black dark:bg-gray-900 dark:text-white">★ Consultation Completed</option>
+                              </select>
+                            </div>
+
+                            {/* Edit Details Button */}
+                            <button
+                              type="button"
+                              onClick={() => startEditConsultation(c)}
+                              className="px-3 py-1.5 bg-[#121212] dark:bg-gray-800 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1 hover:bg-[#B58E5B] transition-colors"
+                              title="Edit consultation details"
+                            >
+                              <Edit2 className="w-3.5 h-3.5 text-[#B58E5B]" />
+                              <span>Edit</span>
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => setDeleteTarget({ type: 'booking', id: c.id, name: c.name })}
+                              className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                              title="Delete Consultation Request"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="px-3 py-1 bg-[#B58E5B] text-white text-[10px] uppercase">{c.status}</span>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteTarget({ type: 'booking', id: c.id, name: c.name })}
-                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                            title="Delete Consultation Request"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+
+                        <div className="text-xs text-gray-700 dark:text-gray-300 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-2 border-t border-gray-200/80 dark:border-gray-800">
+                          <p><strong>Preferred Date:</strong> {c.preferredDate} ({c.preferredTime})</p>
+                          <p><strong>Scope & Budget:</strong> {c.projectType} ({c.estimatedBudget})</p>
+                          <p><strong>Space Type:</strong> {c.spaceType || 'Interior Residence'}</p>
                         </div>
+
+                        {c.notes && (
+                          <div className="p-2.5 bg-white/60 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 text-xs text-gray-700 dark:text-gray-300 italic">
+                            <strong>Notes:</strong> "{c.notes}"
+                          </div>
+                        )}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-300 grid grid-cols-2 gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
-                        <p><strong>Preferred Date:</strong> {c.preferredDate} ({c.preferredTime})</p>
-                        <p><strong>Scope & Budget:</strong> {c.projectType} ({c.estimatedBudget})</p>
-                      </div>
-                      {c.notes && (
-                        <p className="text-xs text-gray-500 italic pt-1">
-                          <strong>Notes:</strong> "{c.notes}"
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
