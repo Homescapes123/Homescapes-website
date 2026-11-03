@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useStudio } from '../context/StudioContext';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, MessageSquare } from 'lucide-react';
+import { submitEnquiry } from '../lib/enquiry';
+import { HoneypotField } from './HoneypotField';
+import { EnquiryErrorNotice } from './EnquiryErrorNotice';
 
 export const ContactSection: React.FC = () => {
-  const { addConsultation } = useStudio();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -14,23 +15,24 @@ export const ContactSection: React.FC = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) return;
+    const form = e.currentTarget;
+    if (!formData.name || !formData.email || isSending) return;
 
-    addConsultation({
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone || 'N/A',
-      projectType: formData.projectType,
-      estimatedBudget: formData.budget,
-      preferredDate: new Date().toISOString().split('T')[0],
-      preferredTime: '10:00 AM',
-      spaceType: 'Entire Residence',
-      location: 'Client Inquiry',
-      notes: formData.message
-    });
+    setIsSending(true);
+    setError('');
+    try {
+      await submitEnquiry('contact', formData, form);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      return;
+    } finally {
+      setIsSending(false);
+    }
 
     setSubmitted(true);
     setTimeout(() => {
@@ -177,6 +179,7 @@ export const ContactSection: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                <HoneypotField />
                 <div>
                   <h3 className="font-serif text-2xl font-normal text-[#1F1F1F] dark:text-white mb-1">
                     Direct Project Consultation
@@ -277,13 +280,16 @@ export const ContactSection: React.FC = () => {
                   />
                 </div>
 
+                {error && <EnquiryErrorNotice message={error} />}
+
                 <button
                   id="contact-submit-btn"
                   type="submit"
-                  className="w-full py-4 bg-[#B58E5B] text-white text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#1F1F1F] transition-all flex items-center justify-center gap-2 shadow-lg"
+                  disabled={isSending}
+                  className="w-full py-4 bg-[#B58E5B] text-white text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#1F1F1F] transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-60 disabled:cursor-wait"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Submit Consultation Request</span>
+                  <span>{isSending ? 'Sending…' : 'Submit Consultation Request'}</span>
                 </button>
               </form>
             )}

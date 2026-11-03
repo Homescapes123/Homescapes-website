@@ -1,38 +1,66 @@
 import React, { useState } from 'react';
 import { useStudio } from '../context/StudioContext';
 import { X, Calendar as CalendarIcon, Clock, CheckCircle2, Send, Sparkles } from 'lucide-react';
+import { submitEnquiry } from '../lib/enquiry';
+import { HoneypotField } from './HoneypotField';
+import { EnquiryErrorNotice } from './EnquiryErrorNotice';
+
+// yyyy-mm-dd in the visitor's time zone (toISOString() would use UTC).
+const localISODate = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+const emptyBooking = () => ({
+  name: '',
+  email: '',
+  phone: '',
+  projectType: 'Residential Interiors',
+  estimatedBudget: '₹10,00,000 - ₹25,00,000',
+  preferredDate: localISODate(new Date(Date.now() + 86400000 * 2)),
+  preferredTime: '10:00 AM IST',
+  location: '',
+  notes: ''
+});
 
 export const BookingModal: React.FC = () => {
-  const { isBookingOpen, setIsBookingOpen, addConsultation } = useStudio();
+  const { isBookingOpen, setIsBookingOpen } = useStudio();
 
   const [step, setStep] = useState<1 | 2>(1);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    projectType: 'Residential Interiors',
-    spaceType: 'Penthouse / Villa',
-    estimatedBudget: '₹10,00,000 - ₹25,00,000',
-    preferredDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
-    preferredTime: '10:00 AM IST',
-    location: 'Indira Nagar, Sugamau, Lucknow / Pan-India',
-    notes: ''
-  });
+  const [formData, setFormData] = useState(emptyBooking);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState('');
 
   if (!isBookingOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) return;
+    const form = e.currentTarget;
+    if (!formData.name || !formData.email || isSending) return;
 
-    addConsultation(formData);
-    setStep(2);
+    setIsSending(true);
+    setError('');
+    try {
+      await submitEnquiry('booking', formData, form);
+      setStep(2);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleClose = () => {
     setIsBookingOpen(false);
+    // A sent request starts fresh next time; an unsent draft is kept.
+    if (step === 2) setFormData(emptyBooking());
     setStep(1);
+    setError('');
   };
+
+  const displayDate = new Date(`${formData.preferredDate}T00:00:00`).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
 
   const availableTimeSlots = [
     '10:00 AM IST',
@@ -79,17 +107,17 @@ export const BookingModal: React.FC = () => {
               
               <div className="space-y-2">
                 <h4 className="font-serif text-3xl font-normal text-[#1F1F1F] dark:text-white">
-                  Consultation Confirmed
+                  Request Received
                 </h4>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-light max-w-md mx-auto">
-                  Thank you, {formData.name}. Your private appointment with our Principal Design Director has been requested for <strong className="text-[#B58E5B]">{formData.preferredDate}</strong> at <strong className="text-[#B58E5B]">{formData.preferredTime}</strong>.
+                  Thank you, {formData.name}. Your consultation request for <strong className="text-[#B58E5B]">{displayDate}</strong> at <strong className="text-[#B58E5B]">{formData.preferredTime}</strong> has been sent to the studio. We'll contact you to confirm the appointment.
                 </p>
               </div>
 
               <div className="glass-card p-6 text-left space-y-2 text-xs text-gray-600 dark:text-gray-300 border border-[#D8CBBE]/40 dark:border-gray-800">
                 <p><strong>Project Type:</strong> {formData.projectType}</p>
                 <p><strong>Estimated Budget:</strong> {formData.estimatedBudget}</p>
-                <p><strong>Email Calendar Invite:</strong> Sent to {formData.email}</p>
+                <p><strong>We'll reply to:</strong> {formData.email}{formData.phone && ` / ${formData.phone}`}</p>
               </div>
 
               <button
@@ -101,7 +129,8 @@ export const BookingModal: React.FC = () => {
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6 relative">
+              <HoneypotField />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-[#B58E5B] font-medium mb-1.5">
@@ -170,6 +199,7 @@ export const BookingModal: React.FC = () => {
                   <input
                     type="date"
                     required
+                    min={localISODate(new Date())}
                     value={formData.preferredDate}
                     onChange={e => setFormData({ ...formData, preferredDate: e.target.value })}
                     className="w-full px-4 py-2.5 text-xs bg-white dark:bg-gray-900 border border-[#D8CBBE] dark:border-gray-700 focus:outline-none focus:border-[#B58E5B] text-[#1F1F1F] dark:text-white"
@@ -241,6 +271,8 @@ export const BookingModal: React.FC = () => {
                 />
               </div>
 
+              {error && <EnquiryErrorNotice message={error} />}
+
               <div className="pt-2 flex items-center justify-between">
                 <span className="text-[10px] text-gray-500 font-light flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5 text-[#B58E5B]" />
@@ -249,10 +281,11 @@ export const BookingModal: React.FC = () => {
                 <button
                   id="booking-submit-btn"
                   type="submit"
-                  className="px-8 py-3.5 bg-[#B58E5B] text-white text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#1F1F1F] transition-colors flex items-center gap-2"
+                  disabled={isSending}
+                  className="px-8 py-3.5 bg-[#B58E5B] text-white text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#1F1F1F] transition-colors flex items-center gap-2 disabled:opacity-60 disabled:cursor-wait"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Confirm Appointment</span>
+                  <span>{isSending ? 'Sending…' : 'Request Appointment'}</span>
                 </button>
               </div>
             </form>
