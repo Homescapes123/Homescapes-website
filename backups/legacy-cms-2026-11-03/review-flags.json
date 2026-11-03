@@ -1,0 +1,381 @@
+{
+  "projects": [
+    {
+      "id": "proj-1",
+      "name": "The Grand Horizon Penthouse",
+      "location": "Worli, Mumbai",
+      "client": "Private Tech Venture Capitalist",
+      "completionYear": "2025",
+      "featured": true,
+      "images": [
+        {
+          "role": "hero",
+          "url": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 1",
+          "url": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 2",
+          "url": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 3",
+          "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 4",
+          "url": "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "before",
+          "url": "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "after",
+          "url": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        }
+      ],
+      "allImagesStock": true,
+      "ownerAction": "Confirm this is a real Homescapes project and supply genuine photos, or unpublish it."
+    },
+    {
+      "id": "proj-2",
+      "name": "Villa Solaria Estate",
+      "location": "Golf Course Road, Gurgaon",
+      "client": "Industrialist & Enterprise Founder",
+      "completionYear": "2024",
+      "featured": true,
+      "images": [
+        {
+          "role": "hero",
+          "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 1",
+          "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 2",
+          "url": "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 3",
+          "url": "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "before",
+          "url": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "after",
+          "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        }
+      ],
+      "allImagesStock": true,
+      "ownerAction": "Confirm this is a real Homescapes project and supply genuine photos, or unpublish it."
+    },
+    {
+      "id": "proj-3",
+      "name": "Aurum Executive Headquarters",
+      "location": "BKC, Mumbai",
+      "client": "Aurum Capital India",
+      "completionYear": "2025",
+      "featured": true,
+      "images": [
+        {
+          "role": "hero",
+          "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 1",
+          "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 2",
+          "url": "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 3",
+          "url": "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "before",
+          "url": "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "after",
+          "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        }
+      ],
+      "allImagesStock": true,
+      "ownerAction": "Confirm this is a real Homescapes project and supply genuine photos, or unpublish it."
+    },
+    {
+      "id": "proj-4",
+      "name": "Atelier Culinary Studio & Kitchen",
+      "location": "Indiranagar, Bengaluru",
+      "client": "Celebrity Residence",
+      "completionYear": "2024",
+      "featured": true,
+      "images": [
+        {
+          "role": "hero",
+          "url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 1",
+          "url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 2",
+          "url": "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "before",
+          "url": "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "after",
+          "url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        }
+      ],
+      "allImagesStock": true,
+      "ownerAction": "Confirm this is a real Homescapes project and supply genuine photos, or unpublish it."
+    },
+    {
+      "id": "proj-5",
+      "name": "Minimalist Teak Bedroom Sanctuary",
+      "location": "Jubilee Hills, Hyderabad",
+      "client": "Private Collector",
+      "completionYear": "2025",
+      "featured": false,
+      "images": [
+        {
+          "role": "hero",
+          "url": "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 1",
+          "url": "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 2",
+          "url": "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "before",
+          "url": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "after",
+          "url": "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        }
+      ],
+      "allImagesStock": true,
+      "ownerAction": "Confirm this is a real Homescapes project and supply genuine photos, or unpublish it."
+    },
+    {
+      "id": "proj-6",
+      "name": "Assagao Heritage Villa Renovation",
+      "location": "Assagao, Goa",
+      "client": "Luxury Boutique Resort Owner",
+      "completionYear": "2024",
+      "featured": false,
+      "images": [
+        {
+          "role": "hero",
+          "url": "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?q=80&w=1600&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 1",
+          "url": "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        },
+        {
+          "role": "gallery 2",
+          "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop",
+          "source": "stock (Unsplash)"
+        }
+      ],
+      "allImagesStock": true,
+      "ownerAction": "Confirm this is a real Homescapes project and supply genuine photos, or unpublish it."
+    }
+  ],
+  "beforeAfterPairs": [
+    {
+      "title": "TriBeCa Living Room Transformation",
+      "location": "New York Penthouse",
+      "before": {
+        "url": "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1600&auto=format&fit=crop",
+        "source": "stock (Unsplash)"
+      },
+      "after": {
+        "url": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600&auto=format&fit=crop",
+        "source": "stock (Unsplash)"
+      },
+      "ownerAction": "Stock photos captioned as foreign projects (outside India). Hide until real before/after pairs exist."
+    },
+    {
+      "title": "Kensington Monolithic Kitchen",
+      "location": "London Townhouse",
+      "before": {
+        "url": "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?q=80&w=1600&auto=format&fit=crop",
+        "source": "stock (Unsplash)"
+      },
+      "after": {
+        "url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1600&auto=format&fit=crop",
+        "source": "stock (Unsplash)"
+      },
+      "ownerAction": "Stock photos captioned as foreign projects (outside India). Hide until real before/after pairs exist."
+    },
+    {
+      "title": "Beverly Hills Solaria Living Suite",
+      "location": "California Estate",
+      "before": {
+        "url": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1600&auto=format&fit=crop",
+        "source": "stock (Unsplash)"
+      },
+      "after": {
+        "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop",
+        "source": "stock (Unsplash)"
+      },
+      "ownerAction": "Stock photos captioned as foreign projects (outside India). Hide until real before/after pairs exist."
+    }
+  ],
+  "otherStock": [
+    {
+      "section": "services",
+      "item": "Residential Interiors",
+      "url": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "services",
+      "item": "Commercial Interiors",
+      "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "services",
+      "item": "Modular Kitchens",
+      "url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "services",
+      "item": "Living Rooms & Lounges",
+      "url": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "services",
+      "item": "Bedroom & Suite Design",
+      "url": "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "services",
+      "item": "Office Interiors",
+      "url": "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "services",
+      "item": "Space Planning & Layout",
+      "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "services",
+      "item": "3D Visualization & VR Walkthroughs",
+      "url": "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "services",
+      "item": "Complete Architectural Renovation",
+      "url": "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "services",
+      "item": "Turnkey Project Execution",
+      "url": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "instagram feed",
+      "item": "Sunlight filtering through natural linen sheer drapes at The",
+      "url": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "instagram feed",
+      "item": "Monolithic Arabescato marble island handcrafted for our Indi",
+      "url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=800&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "instagram feed",
+      "item": "Golden hour at Villa Solaria Estate on Golf Course Road. Ind",
+      "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "instagram feed",
+      "item": "Tranquil master bedroom suite in Jubilee Hills featuring nat",
+      "url": "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=800&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "blog (unused)",
+      "item": "The Art of Tactile Warmth: Evolving Minimalist Luxury for 2026",
+      "url": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "blog (unused)",
+      "item": "Selecting Stone Slabs: A Guide to Calacatta, Travertine & Quartzite",
+      "url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    },
+    {
+      "section": "blog (unused)",
+      "item": "Acoustic Elegance: How Sound Defines High-End Interior Architecture",
+      "url": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200&auto=format&fit=crop",
+      "source": "stock (Unsplash)"
+    }
+  ]
+}
