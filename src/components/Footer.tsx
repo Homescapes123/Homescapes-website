@@ -6,7 +6,7 @@ import { Mail, Instagram, Linkedin, Facebook, ArrowUp, Send, Check } from 'lucid
 const SHOW_NEWSLETTER = false;
 
 export const Footer: React.FC = () => {
-  const { setCurrentView, setIsBookingOpen, openOwnerPortal } = useStudio();
+  const { setCurrentView, setIsBookingOpen } = useStudio();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
 

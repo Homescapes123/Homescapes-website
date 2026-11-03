@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StudioProvider, useStudio } from './context/StudioContext';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -16,22 +16,13 @@ import { InstagramFeed } from './components/InstagramFeed';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
-import { CMSManagerModal } from './components/CMSManagerModal';
-import { OwnerAuthModal } from './components/OwnerAuthModal';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { BackToTop } from './components/BackToTop';
 import { IntroLoader } from './components/IntroLoader';
 import { LegalModals } from './components/LegalModals';
 
 const MainContent: React.FC = () => {
-  const { currentView, openOwnerPortal } = useStudio();
-
-  useEffect(() => {
-    if (window.location.pathname === '/admin-portal') {
-      openOwnerPortal();
-      window.history.replaceState({}, '', '/');
-    }
-  }, [openOwnerPortal]);
+  const { currentView } = useStudio();
 
   return (
     <main className="min-h-screen">
@@ -103,10 +94,8 @@ export default function App() {
         <Footer />
 
         {/* Overlays and Modals */}
-        <OwnerAuthModal />
         <BookingModal />
         <ProjectDetailModal />
-        <CMSManagerModal />
         <FloatingWhatsApp />
         <BackToTop />
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { useStudio } from '../context/StudioContext';
 import {
   Award,
@@ -8,12 +8,8 @@ import {
   ArrowRight,
   Quote,
   CheckCircle2,
-  Camera,
-  Upload,
-  Check,
   Mail,
-  Phone,
-  Lock
+  Phone
 } from 'lucide-react';
 import defaultFounderPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
 
@@ -21,71 +17,8 @@ export const AboutSection: React.FC = () => {
   const {
     setIsBookingOpen,
     setCurrentView,
-    founderData,
-    updateFounderPhoto,
-    openOwnerPortal,
-    isOwnerAuthenticated
+    founderData
   } = useStudio();
-
-  const [toastMsg, setToastMsg] = useState('');
-  const founderFileInputRef = useRef<HTMLInputElement>(null);
-
-  const handlePhotoClick = () => {
-    if (!isOwnerAuthenticated) {
-      openOwnerPortal();
-    } else {
-      founderFileInputRef.current?.click();
-    }
-  };
-
-  const compressProfilePhoto = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const raw = e.target?.result as string;
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxDim = 600;
-          let { width, height } = img;
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', 0.8));
-          } else {
-            resolve(raw);
-          }
-        };
-        img.onerror = () => resolve(raw);
-        img.src = raw;
-      };
-      reader.onerror = () => resolve('');
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleDirectPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const base64 = await compressProfilePhoto(file);
-      if (base64) {
-        updateFounderPhoto(base64);
-        setToastMsg('Founder photo updated & saved live to website!');
-        setTimeout(() => setToastMsg(''), 4000);
-      }
-    }
-  };
 
   return (
     <section id="about-us-section" className="py-24 bg-[#E2D9CD] dark:bg-[#121110] transition-colors duration-300 relative overflow-hidden">
@@ -229,29 +162,10 @@ export const AboutSection: React.FC = () => {
 
         {/* Compact Instagram-Style Founder Section */}
         <div className="bg-[#E8DFC8] dark:bg-[#1C1B19] border border-[#B58E5B]/50 p-6 sm:p-8 relative overflow-hidden shadow-lg rounded-xl">
-          
-          {/* Toast Notification for photo update */}
-          {toastMsg && (
-            <div className="mb-4 p-3 bg-[#B58E5B] text-white text-xs font-bold uppercase tracking-wider flex items-center justify-between shadow-md animate-fadeIn">
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4" />
-                <span>{toastMsg}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Hidden File Input for Device Photo Upload */}
-          <input
-            type="file"
-            ref={founderFileInputRef}
-            accept="image/*"
-            onChange={handleDirectPhotoChange}
-            className="hidden"
-          />
 
           <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-10">
-            
-            {/* Instagram-style Circle Avatar with Direct Photo Upload Trigger */}
+
+            {/* Instagram-style Circle Avatar */}
             <div className="relative group shrink-0">
               {/* Instagram Gradient Ring */}
               <div className="p-[3px] rounded-full bg-gradient-to-tr from-[#B58E5B] via-[#F3E3C3] to-[#8C6638] shadow-xl hover:shadow-[#B58E5B]/20 transition-all duration-300">
@@ -265,26 +179,6 @@ export const AboutSection: React.FC = () => {
                         (e.target as HTMLImageElement).src = defaultFounderPhoto;
                       }}
                     />
-                    
-                    {/* Hover Camera Overlay to Change Photo (PIN Protected) */}
-                    <button
-                      type="button"
-                      onClick={handlePhotoClick}
-                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs font-bold gap-1 cursor-pointer"
-                      title={isOwnerAuthenticated ? "Upload New Founder Photo" : "Owner PIN Required to Change Photo"}
-                    >
-                      {isOwnerAuthenticated ? (
-                        <>
-                          <Camera className="w-6 h-6 text-[#B58E5B]" />
-                          <span>Upload Photo</span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-6 h-6 text-[#B58E5B]" />
-                          <span className="text-[10px]">Owner PIN Required</span>
-                        </>
-                      )}
-                    </button>
                   </div>
                 </div>
               </div>
@@ -358,16 +252,6 @@ export const AboutSection: React.FC = () => {
                 >
                   <span>Book Session with {founderData.name.split(' ')[0]}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handlePhotoClick}
-                  className="px-4 py-2.5 border border-[#B58E5B] bg-[#B58E5B]/10 hover:bg-[#B58E5B] text-[#B58E5B] hover:text-white text-xs uppercase tracking-wider font-bold transition-all shadow-xs flex items-center gap-2"
-                  title="Owner PIN Protected Photo Upload"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>{isOwnerAuthenticated ? "Upload Founder Photo" : "Owner: Change Photo"}</span>
                 </button>
               </div>
 

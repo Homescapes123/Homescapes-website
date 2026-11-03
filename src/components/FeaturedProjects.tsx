@@ -9,8 +9,7 @@ export const FeaturedProjects: React.FC = () => {
     selectedCategory,
     setSelectedCategory,
     setSelectedProject,
-    setCurrentView,
-    openOwnerPortal
+    setCurrentView
   } = useStudio();
 
   const categories: PortfolioCategory[] = [

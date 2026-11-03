@@ -6,8 +6,7 @@ export const Header: React.FC = () => {
   const {
     currentView,
     setCurrentView,
-    setIsBookingOpen,
-    openOwnerPortal
+    setIsBookingOpen
   } = useStudio();
 
   const [isScrolled, setIsScrolled] = useState(false);
