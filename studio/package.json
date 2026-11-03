@@ -1,0 +1,28 @@
+{
+  "name": "homescapes-studio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Owner-only content editor (Sanity Studio) for www.homescapes.studio",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "lint": "tsc --noEmit",
+    "seed": "node scripts/build-seed.mjs"
+  },
+  "dependencies": {
+    "@sanity/icons": "^5.2.3",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "sanity": "^6.22.0",
+    "styled-components": "^6.1.15"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "typescript": "~5.8.2"
+  }
+}
