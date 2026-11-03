@@ -16,13 +16,15 @@ import { checkBotId } from 'botid/server';
 
 export const config = { maxDuration: 15 };
 
-type Kind = 'booking' | 'contact' | 'review';
+type Kind = 'booking' | 'contact' | 'review' | 'recovery';
 
 interface FieldRule {
   label: string;
   max: number;
   required?: boolean;
-  format?: 'email' | 'phone' | 'date' | 'rating';
+  format?: 'email' | 'phone' | 'date' | 'datetime' | 'rating';
+  allowPast?: boolean;
+  choices?: string[];
 }
 
 const FIELDS: Record<Kind, Record<string, FieldRule>> = {
@@ -53,19 +55,40 @@ const FIELDS: Record<Kind, Record<string, FieldRule>> = {
     projectTitle: { label: 'Project', max: 150 },
     clientRole: { label: 'Role', max: 100 },
     contact: { label: 'Private contact (for verification)', max: 254 }
+  },
+  // A request the old website kept only in the visitor's browser, sent again after they confirmed it.
+  recovery: {
+    originalForm: { label: 'Original form', max: 30, required: true, choices: ['Consultation request', 'Contact form'] },
+    originalSubmittedAt: { label: 'First submitted', max: 40, required: true, format: 'datetime' },
+    name: { label: 'Name', max: 100, required: true },
+    email: { label: 'Email', max: 254, required: true, format: 'email' },
+    phone: { label: 'Phone', max: 30, format: 'phone' },
+    location: { label: 'Project location', max: 200 },
+    preferredDate: { label: 'Preferred date (as first chosen)', max: 10, format: 'date', allowPast: true },
+    preferredTime: { label: 'Preferred time (as first chosen)', max: 30 },
+    projectType: { label: 'Project type', max: 100 },
+    budget: { label: 'Budget', max: 60 },
+    message: { label: 'Message', max: 3000 }
   }
 };
+
+const formatIst = (iso: string, options: Intl.DateTimeFormatOptions) =>
+  new Date(iso).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', ...options });
 
 const SUBJECTS: Record<Kind, (f: Record<string, string>) => string> = {
   booking: f => `New consultation request: ${f.name}`,
   contact: f => `New website enquiry: ${f.name}`,
-  review: f => `Review awaiting approval: ${f.name} (${f.rating}/5)`
+  review: f => `Review awaiting approval: ${f.name} (${f.rating}/5)`,
+  recovery: f => `Recovered enquiry (first sent ${formatIst(f.originalSubmittedAt, { dateStyle: 'medium' })}): ${f.name}`
 };
 
 const INTROS: Record<Kind, string> = {
   booking: 'A visitor requested a consultation on the website. The appointment is not confirmed until you reply.',
   contact: 'A visitor sent an enquiry through the website contact form.',
-  review: 'A visitor submitted a review. It is not published. Add it to the website only if you approve it.'
+  review: 'A visitor submitted a review. It is not published. Add it to the website only if you approve it.',
+  recovery:
+    'This request was sent through the website before enquiries were delivered by email, so the studio never received it. ' +
+    'The visitor saw it on the website today and asked for it to be sent now. Any date or time they chose may have passed; reply to arrange a new one.'
 };
 
 const DEFAULT_TO = 'workwithhomescapes@gmail.com';
@@ -149,6 +172,7 @@ const escapeHtml = (value: string) =>
 function validateField(rule: FieldRule, value: string): string | null {
   if (!value) return rule.required ? `${rule.label} is required.` : null;
   if (value.length > rule.max) return `${rule.label} is too long.`;
+  if (rule.choices && !rule.choices.includes(value)) return 'Invalid request.';
   switch (rule.format) {
     case 'email':
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? null : 'Please enter a valid email address.';
@@ -158,9 +182,15 @@ function validateField(rule: FieldRule, value: string): string | null {
       return /^[1-5]$/.test(value) ? null : 'Please choose a rating from 1 to 5.';
     case 'date': {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value))) return 'Please choose a valid date.';
+      if (rule.allowPast) return null;
       // Allow "today" in any Indian/UTC offset by comparing against yesterday (UTC).
       const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
       return value >= yesterday ? null : 'Please choose a date that is not in the past.';
+    }
+    case 'datetime': {
+      // A moment in the past (with a day's grace for clock differences).
+      const time = Date.parse(value);
+      return !Number.isNaN(time) && time <= Date.now() + 86400000 ? null : 'Invalid request.';
     }
     default:
       return null;
@@ -172,7 +202,7 @@ function renderEmail(kind: Kind, fields: Record<string, string>, subject: string
   const receivedAt = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
   const rows = Object.entries(rules)
     .filter(([key]) => fields[key])
-    .map(([key, rule]) => [rule.label, fields[key]] as const);
+    .map(([key, rule]) => [rule.label, rule.format === 'datetime' ? `${formatIst(fields[key], { dateStyle: 'medium', timeStyle: 'short' })} IST` : fields[key]] as const);
 
   const html = `<div style="font-family:Arial,sans-serif;max-width:640px;color:#1F1F1F">
   <h2 style="font-weight:normal;margin:0 0 8px">${escapeHtml(subject)}</h2>

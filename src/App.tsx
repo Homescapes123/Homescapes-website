@@ -20,6 +20,7 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { BackToTop } from './components/BackToTop';
 import { IntroLoader } from './components/IntroLoader';
 import { LegalModals } from './components/LegalModals';
+import { LeadRecoveryNotice } from './components/LeadRecoveryNotice';
 
 const MainContent: React.FC = () => {
   const { currentView } = useStudio();
@@ -98,6 +99,7 @@ export default function App() {
         <ProjectDetailModal />
         <FloatingWhatsApp />
         <BackToTop />
+        <LeadRecoveryNotice />
       </div>
     </StudioProvider>
   );

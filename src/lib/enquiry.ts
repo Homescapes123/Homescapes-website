@@ -1,7 +1,7 @@
 // Sends a form submission to /api/enquiry (api/enquiry.ts), which emails it to the studio.
 // Resolves only when the server confirms the email was sent; every other outcome throws.
 
-export type EnquiryKind = 'booking' | 'contact' | 'review';
+export type EnquiryKind = 'booking' | 'contact' | 'review' | 'recovery';
 
 // Name of the hidden anti-spam field rendered by <HoneypotField />.
 export const HONEYPOT_FIELD = 'hs_hp';
@@ -17,9 +17,9 @@ export class EnquiryError extends Error {}
 export async function submitEnquiry(
   kind: EnquiryKind,
   fields: Record<string, string | number>,
-  form: HTMLFormElement
+  form?: HTMLFormElement
 ): Promise<void> {
-  const honeypot = (form.elements.namedItem(HONEYPOT_FIELD) as HTMLInputElement | null)?.value ?? '';
+  const honeypot = (form?.elements.namedItem(HONEYPOT_FIELD) as HTMLInputElement | null | undefined)?.value ?? '';
 
   // BotID (src/main.tsx) wraps fetch and may wait on its challenge script, so time out the whole call.
   let timer: ReturnType<typeof setTimeout> | undefined;

@@ -261,6 +261,37 @@ test('dry run sends nothing outside production, but is ignored in production', a
   assert.equal((await POST(req({ kind: 'booking', fields: booking }))).status, 503);
 });
 
+const recovered = {
+  originalForm: 'Consultation request',
+  originalSubmittedAt: '2026-09-12T06:30:00.000Z',
+  name: 'Kavya',
+  email: 'kavya@example.com',
+  preferredDate: '2026-09-14',
+  preferredTime: '10:00 AM IST',
+  message: 'Villa in Gomti Nagar'
+};
+
+test('recovered enquiry: past dates allowed, email explains it was never received', async () => {
+  const res = await POST(req({ kind: 'recovery', fields: recovered }));
+  assert.equal(res.status, 200);
+  const body = sent();
+  assert.equal(body.subject, 'Recovered enquiry (first sent 12 Sept 2026): Kavya');
+  assert.ok(body.text.includes('the studio never received it'));
+  assert.ok(body.text.includes('First submitted: 12 Sept 2026, 12:00 pm IST'));
+  assert.ok(body.text.includes('Preferred date (as first chosen): 2026-09-14'));
+  assert.equal(body.reply_to, 'kavya@example.com');
+  assert.deepEqual(body.tags, [{ name: 'kind', value: 'recovery' }]);
+});
+
+test('recovered enquiry: unknown form, future or invalid timestamp, missing email -> 400', async () => {
+  assert.equal((await POST(req({ kind: 'recovery', fields: { ...recovered, originalForm: 'Admin' } }))).status, 400);
+  const future = new Date(Date.now() + 3 * 86400000).toISOString();
+  assert.equal((await POST(req({ kind: 'recovery', fields: { ...recovered, originalSubmittedAt: future } }))).status, 400);
+  assert.equal((await POST(req({ kind: 'recovery', fields: { ...recovered, originalSubmittedAt: 'yesterday-ish' } }))).status, 400);
+  assert.equal((await POST(req({ kind: 'recovery', fields: { ...recovered, email: '' } }))).status, 400);
+  assert.equal(calls.length, 0);
+});
+
 test('only POST is exported (Vercel answers other methods with 405)', () => {
   assert.deepEqual(Object.keys(mod).sort(), ['POST', 'config']);
 });
