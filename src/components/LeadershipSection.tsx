@@ -53,13 +53,9 @@ const Portrait: React.FC<{ leader: LeaderProfile }> = ({ leader }) => {
   );
 };
 
-// A profile without a quote, bio or highlights yet is centred so it stays balanced beside a full one.
-const LeaderCard: React.FC<{ leader: LeaderProfile }> = ({ leader }) => (
-  <article
-    className={`h-full bg-[#E8DFC8] dark:bg-[#1C1B19] border border-[#B58E5B]/50 p-6 sm:p-8 shadow-lg rounded-xl flex flex-col items-center gap-6 ${
-      leader.quote || leader.bio || leader.highlights?.length ? '' : 'justify-center'
-    }`}
-  >
+// One profile column. Columns start at the top so the portraits and names line up side by side.
+const LeaderProfileColumn: React.FC<{ leader: LeaderProfile }> = ({ leader }) => (
+  <article className="flex flex-col items-center gap-6 py-10 first:pt-0 last:pb-0 md:py-0 md:px-8 lg:px-12">
     <Portrait leader={leader} />
 
     <div className="text-center">
@@ -113,11 +109,17 @@ export const LeadershipSection: React.FC = () => {
         </h3>
       </div>
 
-      {/* Equal-width cards: side by side from tablet width, stacked on phones */}
-      <div className={`grid grid-cols-1 gap-8 ${leadership.length > 1 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto'}`}>
-        {leadership.map(leader => (
-          <LeaderCard key={leader.id} leader={leader} />
-        ))}
+      {/* One frame: profiles side by side from tablet width (divided by a gold rule), stacked on phones */}
+      <div className={`bg-[#E8DFC8] dark:bg-[#1C1B19] border border-[#B58E5B]/50 p-6 sm:p-10 shadow-lg rounded-xl ${leadership.length > 1 ? '' : 'max-w-2xl mx-auto'}`}>
+        <div
+          className={`grid grid-cols-1 divide-y divide-[#B58E5B]/30 md:divide-y-0 md:divide-x ${
+            leadership.length > 1 ? 'md:grid-cols-2' : ''
+          }`}
+        >
+          {leadership.map(leader => (
+            <LeaderProfileColumn key={leader.id} leader={leader} />
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-medium">

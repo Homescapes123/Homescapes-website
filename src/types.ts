@@ -122,7 +122,7 @@ export interface ConsultationBooking {
 export interface LeaderProfile {
   id: string;
   name: string;
-  designation: string; // e.g. "Founder & Principal Director"
+  designation: string; // e.g. "Founder & Director"
   shortTitle: string; // label on the portrait, e.g. "Founder"
   photo?: string; // left empty until a real photograph is supplied; a monogram is shown instead
   quote?: string;

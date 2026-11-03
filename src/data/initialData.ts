@@ -2,13 +2,13 @@ import { Project, Service, Testimonial, ProcessStep, FAQItem, BlogPost, Instagra
 import hariomSrivastavaPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
 
 // Fallback content until the site reads from the CMS, where the owner edits these profiles.
-// Only details supplied by the studio belong here: Yashdeep Singh's photograph and biography
+// Only details supplied by the studio belong here: Yashdeep Singh's photograph and full biography
 // are added once provided.
 export const INITIAL_LEADERSHIP: LeaderProfile[] = [
   {
     id: 'leader-hariom-srivastava',
     name: 'Hariom Srivastava',
-    designation: 'Founder & Principal Director',
+    designation: 'Founder & Director',
     shortTitle: 'Founder',
     photo: hariomSrivastavaPhoto,
     quote: 'Our philosophy at Homescapes Studio is grounded in creating spaces that resonate with soul, elegance, and effortless luxury. Every villa, penthouse, or workspace we craft reflects the unique personality of its owner while maintaining absolute architectural integrity.',
@@ -24,7 +24,9 @@ export const INITIAL_LEADERSHIP: LeaderProfile[] = [
     id: 'leader-yashdeep-singh',
     name: 'Yashdeep Singh',
     designation: 'Co-Founder & Director',
-    shortTitle: 'Co-Founder'
+    shortTitle: 'Co-Founder',
+    // Role-based only; replace with his own biography once supplied.
+    bio: 'As Co-Founder & Director, Yashdeep Singh leads Homescapes Studio together with founder Hariom Srivastava from the studio in Indira Nagar, Sugamau, Lucknow.'
   }
 ];
 
