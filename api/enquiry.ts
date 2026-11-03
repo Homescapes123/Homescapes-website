@@ -1,13 +1,18 @@
 // Vercel Function: receives website form submissions and emails them to the studio via Resend.
 // Nothing is stored here or in the browser; the studio inbox is the record of every enquiry.
 //
+// Abuse protection, cheapest first: same-origin check, size limit, honeypot, field validation,
+// per-IP rate limit, then Vercel BotID. The shared rate limit lives in the Vercel Firewall (docs/DEPLOYMENT.md).
+//
 // Env (server-only, never prefixed with VITE_):
 //   RESEND_API_KEY      Resend API key
 //   ENQUIRY_FROM_EMAIL  sender on a Resend-verified domain, e.g. "Homescapes Website <enquiries@homescapes.studio>"
 //   ENQUIRY_TO_EMAIL    recipient (defaults to the studio address published on the site)
 //   ENQUIRY_DRY_RUN=1   log the email instead of sending it (ignored in production)
+//   BOTID_DEV_BYPASS    local development only: HUMAN (default) or BAD-BOT; BotID ignores it in production
 
 import { createHash } from 'node:crypto';
+import { checkBotId } from 'botid/server';
 
 export const config = { maxDuration: 15 };
 
@@ -66,12 +71,77 @@ const INTROS: Record<Kind, string> = {
 const DEFAULT_TO = 'workwithhomescapes@gmail.com';
 const MAX_BODY_BYTES = 16 * 1024;
 const HONEYPOT = 'hs_hp';
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const BOT_CHECK_TIMEOUT_MS = 5000;
 
-const json = (status: number, body: Record<string, unknown>) =>
+// Messages shown to the visitor next to the WhatsApp / phone / email fallbacks.
+const MESSAGES = {
+  forbidden: 'Please send this form from the Homescapes Studio website.',
+  rateLimited: "You've sent several requests in a short time. Please wait a few minutes before trying again.",
+  bot: "We couldn't verify this request automatically."
+};
+
+const json = (status: number, body: Record<string, unknown>, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...headers }
   });
+
+// Only same-origin browser requests: browsers always send Origin on POST, and Sec-Fetch-Site when they support it.
+// Comparing against the request's own host keeps this correct on production, preview and localhost alike.
+function isSameOrigin(request: Request): boolean {
+  const fetchSite = request.headers.get('sec-fetch-site');
+  if (fetchSite && fetchSite !== 'same-origin') return false;
+  const origin = request.headers.get('origin');
+  if (!origin) return false;
+  try {
+    return new URL(origin).host === new URL(request.url).host;
+  } catch {
+    return false; // malformed Origin header
+  }
+}
+
+// Vercel overwrites x-real-ip / x-forwarded-for with the client's address, so they can't be spoofed there.
+const clientIp = (request: Request) =>
+  request.headers.get('x-real-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown';
+
+// Best effort: counts are per function instance (Fluid compute reuses instances), so this stops bursts
+// from one address; the Vercel Firewall rate-limit rule is the limit shared across instances.
+const recentByIp = new Map<string, number[]>();
+
+function retryAfterSeconds(ip: string, now = Date.now()): number | null {
+  const recent = (recentByIp.get(ip) ?? []).filter(t => now - t < RATE_WINDOW_MS);
+  if (recentByIp.size > 5000) {
+    for (const [key, times] of recentByIp) if (times.every(t => now - t >= RATE_WINDOW_MS)) recentByIp.delete(key);
+  }
+  if (recent.length >= RATE_LIMIT) {
+    recentByIp.set(ip, recent);
+    return Math.ceil((recent[0] + RATE_WINDOW_MS - now) / 1000);
+  }
+  recentByIp.set(ip, [...recent, now]);
+  return null;
+}
+
+// Vercel BotID validates the invisible browser challenge attached by initBotId() in src/main.tsx.
+// If the check itself fails (misconfiguration or outage) the enquiry goes through: losing a client's
+// request is worse than one spam email, and the rate limits still apply.
+async function isBot(): Promise<boolean> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error('timed out')), BOT_CHECK_TIMEOUT_MS);
+  });
+  try {
+    const bypass = process.env.BOTID_DEV_BYPASS === 'BAD-BOT' ? 'BAD-BOT' : 'HUMAN';
+    const verification = await Promise.race([checkBotId({ developmentOptions: { bypass } }), timeout]);
+    return verification.isBot;
+  } catch (err) {
+    console.error('[enquiry] BotID check failed; allowing the enquiry:', err);
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]!);
@@ -97,7 +167,7 @@ function validateField(rule: FieldRule, value: string): string | null {
   }
 }
 
-function renderEmail(kind: Kind, fields: Record<string, string>) {
+function renderEmail(kind: Kind, fields: Record<string, string>, subject: string, host: string) {
   const rules = FIELDS[kind];
   const receivedAt = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
   const rows = Object.entries(rules)
@@ -105,7 +175,7 @@ function renderEmail(kind: Kind, fields: Record<string, string>) {
     .map(([key, rule]) => [rule.label, fields[key]] as const);
 
   const html = `<div style="font-family:Arial,sans-serif;max-width:640px;color:#1F1F1F">
-  <h2 style="font-weight:normal;margin:0 0 8px">${escapeHtml(SUBJECTS[kind](fields))}</h2>
+  <h2 style="font-weight:normal;margin:0 0 8px">${escapeHtml(subject)}</h2>
   <p style="color:#555;margin:0 0 16px">${escapeHtml(INTROS[kind])}</p>
   <table style="border-collapse:collapse;width:100%">${rows
     .map(([label, value]) => `
@@ -115,27 +185,17 @@ function renderEmail(kind: Kind, fields: Record<string, string>) {
     </tr>`)
     .join('')}
   </table>
-  <p style="color:#888;font-size:12px;margin-top:16px">Received ${escapeHtml(receivedAt)} IST via www.homescapes.studio${
+  <p style="color:#888;font-size:12px;margin-top:16px">Received ${escapeHtml(receivedAt)} IST via ${escapeHtml(host)}${
     fields.email ? '. Reply to this email to answer the client directly.' : '.'
   }</p>
 </div>`;
 
-  const text = [SUBJECTS[kind](fields), INTROS[kind], '', ...rows.map(([label, value]) => `${label}: ${value}`), '', `Received ${receivedAt} IST`].join('\n');
+  const text = [subject, INTROS[kind], '', ...rows.map(([label, value]) => `${label}: ${value}`), '', `Received ${receivedAt} IST via ${host}`].join('\n');
   return { html, text };
 }
 
 export async function POST(request: Request): Promise<Response> {
-  // Browsers always send Origin on cross-site POSTs; only accept submissions from this site.
-  const origin = request.headers.get('origin');
-  if (origin) {
-    let sameHost = false;
-    try {
-      sameHost = new URL(origin).host === new URL(request.url).host;
-    } catch {
-      // malformed Origin header
-    }
-    if (!sameHost) return json(403, { ok: false, error: 'Forbidden.' });
-  }
+  if (!isSameOrigin(request)) return json(403, { ok: false, error: MESSAGES.forbidden });
 
   const raw = await request.text();
   if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) return json(413, { ok: false, error: 'Submission is too large.' });
@@ -164,9 +224,15 @@ export async function POST(request: Request): Promise<Response> {
     if (value) fields[key] = value;
   }
 
-  const { html, text } = renderEmail(kind, fields);
-  const subject = SUBJECTS[kind](fields).replace(/[\r\n]+/g, ' ');
+  const retryAfter = retryAfterSeconds(clientIp(request));
+  if (retryAfter !== null) return json(429, { ok: false, error: MESSAGES.rateLimited }, { 'Retry-After': String(retryAfter) });
+
+  if (await isBot()) return json(403, { ok: false, error: MESSAGES.bot });
+
   const isProduction = process.env.VERCEL_ENV === 'production';
+  // Preview deployments email the same inbox unless ENQUIRY_TO_EMAIL is scoped to Preview, so label them.
+  const subject = (process.env.VERCEL_ENV === 'preview' ? '[Preview] ' : '') + SUBJECTS[kind](fields).replace(/[\r\n]+/g, ' ');
+  const { html, text } = renderEmail(kind, fields, subject, new URL(request.url).host);
 
   if (process.env.ENQUIRY_DRY_RUN === '1' && !isProduction) {
     console.info(`[enquiry dry run] ${subject}\n${text}`);

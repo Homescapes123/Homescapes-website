@@ -6,7 +6,7 @@ export const EnquiryErrorNotice: React.FC<{ message: string }> = ({ message }) =
   <div role="alert" className="flex items-start gap-3 p-4 border border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200 text-sm">
     <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
     <p>
-      {message} Please try again, or reach the studio directly on{' '}
+      {message} You can also reach the studio directly on{' '}
       <a href="https://wa.me/917380334333" target="_blank" rel="noopener noreferrer" className="underline font-medium">
         WhatsApp
       </a>

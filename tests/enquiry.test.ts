@@ -20,10 +20,18 @@ const booking = {
   notes: 'Line1\nLine2 & "quotes"'
 };
 
+// Each request gets its own client address unless a test sets x-real-ip, so rate limiting stays out of the way.
+let ipCounter = 0;
 const req = (body: unknown, headers: Record<string, string> = {}) =>
   new Request(URL_, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', origin: 'https://www.homescapes.studio', ...headers },
+    headers: {
+      'content-type': 'application/json',
+      origin: 'https://www.homescapes.studio',
+      'sec-fetch-site': 'same-origin',
+      'x-real-ip': `203.0.113.${++ipCounter % 250}:${ipCounter}`,
+      ...headers
+    },
     body: typeof body === 'string' ? body : JSON.stringify(body)
   });
 
@@ -42,6 +50,7 @@ beforeEach(() => {
   delete process.env.ENQUIRY_DRY_RUN;
   delete process.env.VERCEL_ENV;
   delete process.env.ENQUIRY_TO_EMAIL;
+  delete process.env.BOTID_DEV_BYPASS;
   process.env.RESEND_API_KEY = 're_test';
   process.env.ENQUIRY_FROM_EMAIL = 'Homescapes Website <enquiries@homescapes.studio>';
   stubResend();
@@ -142,10 +151,94 @@ test('over-long field -> 400', async () => {
   assert.equal(res.status, 400);
 });
 
-test('cross-origin browser POST -> 403; no Origin header is allowed', async () => {
-  assert.equal((await POST(req({ kind: 'booking', fields: booking }, { origin: 'https://evil.example' }))).status, 403);
+test('only same-origin browser requests are accepted', async () => {
+  const cross = await POST(req({ kind: 'booking', fields: booking }, { origin: 'https://evil.example' }));
+  assert.equal(cross.status, 403);
+  assert.equal((await cross.json()).error, 'Please send this form from the Homescapes Studio website.');
+  // A look-alike host is not the same host.
+  assert.equal((await POST(req({ kind: 'booking', fields: booking }, { origin: 'https://www.homescapes.studio.evil.example' }))).status, 403);
+  assert.equal((await POST(req({ kind: 'booking', fields: booking }, { origin: 'null' }))).status, 403);
+  // The browser itself reports a cross-site request even if Origin were forged.
+  assert.equal((await POST(req({ kind: 'booking', fields: booking }, { 'sec-fetch-site': 'cross-site' }))).status, 403);
+  // Scripts that send no Origin at all (curl etc.) are refused.
   const noOrigin = new Request(URL_, { method: 'POST', body: JSON.stringify({ kind: 'booking', fields: booking }) });
-  assert.equal((await POST(noOrigin)).status, 200);
+  assert.equal((await POST(noOrigin)).status, 403);
+  assert.equal(calls.length, 0);
+});
+
+test('origin check follows the deployment host (preview URL, localhost)', async () => {
+  const preview = 'https://homescapes-website-git-homescripts-improvements-team.vercel.app';
+  const previewReq = new Request(`${preview}/api/enquiry`, {
+    method: 'POST',
+    headers: { origin: preview, 'x-real-ip': '198.51.100.7' },
+    body: JSON.stringify({ kind: 'contact', fields: { name: 'P', email: 'p@example.com' } })
+  });
+  assert.equal((await POST(previewReq)).status, 200);
+  // Production origin posting to a preview deployment (or vice versa) is cross-origin.
+  const mixed = new Request(`${preview}/api/enquiry`, {
+    method: 'POST',
+    headers: { origin: 'https://www.homescapes.studio', 'x-real-ip': '198.51.100.8' },
+    body: JSON.stringify({ kind: 'contact', fields: { name: 'P', email: 'p@example.com' } })
+  });
+  assert.equal((await POST(mixed)).status, 403);
+  const local = new Request('http://localhost:3000/api/enquiry', {
+    method: 'POST',
+    headers: { origin: 'http://localhost:3000', 'x-real-ip': '127.0.0.1' },
+    body: JSON.stringify({ kind: 'contact', fields: { name: 'L', email: 'l@example.com' } })
+  });
+  assert.equal((await POST(local)).status, 200);
+});
+
+test('preview deployments label the email; production does not', async () => {
+  process.env.VERCEL_ENV = 'preview';
+  await POST(req({ kind: 'contact', fields: { name: 'Ravi', email: 'ravi@example.com' } }));
+  assert.equal(sent().subject, '[Preview] New website enquiry: Ravi');
+  assert.ok(sent().text.includes('via www.homescapes.studio'));
+  process.env.VERCEL_ENV = 'production';
+  stubResend();
+  await POST(req({ kind: 'contact', fields: { name: 'Ravi', email: 'ravi@example.com' } }));
+  assert.equal(sent().subject, 'New website enquiry: Ravi');
+});
+
+test('per-IP rate limit: 5 sends per 10 minutes, then 429 with Retry-After', async () => {
+  const ip = { 'x-real-ip': '192.0.2.50' };
+  for (let i = 0; i < 5; i++) {
+    stubResend();
+    const res = await POST(req({ kind: 'contact', fields: { name: `R${i}`, email: 'r@example.com' } }, ip));
+    assert.equal(res.status, 200, `request ${i + 1} should pass`);
+  }
+  stubResend();
+  const limited = await POST(req({ kind: 'contact', fields: { name: 'R6', email: 'r@example.com' } }, ip));
+  assert.equal(limited.status, 429);
+  assert.ok(Number(limited.headers.get('retry-after')) > 0);
+  assert.match((await limited.json()).error, /wait a few minutes/);
+  assert.equal(calls.length, 0);
+  // Another visitor is unaffected.
+  const other = await POST(req({ kind: 'contact', fields: { name: 'S', email: 's@example.com' } }, { 'x-real-ip': '192.0.2.51' }));
+  assert.equal(other.status, 200);
+  // Without x-real-ip, the first x-forwarded-for address is the key.
+  const viaForwarded = (name: string) =>
+    POST(new Request(URL_, {
+      method: 'POST',
+      headers: { origin: 'https://www.homescapes.studio', 'x-forwarded-for': '192.0.2.50, 10.0.0.1' },
+      body: JSON.stringify({ kind: 'contact', fields: { name, email: 'r@example.com' } })
+    }));
+  assert.equal((await viaForwarded('R7')).status, 429);
+});
+
+test('invalid submissions and honeypot hits do not use up the rate limit', async () => {
+  const ip = { 'x-real-ip': '192.0.2.60' };
+  for (let i = 0; i < 8; i++) await POST(req({ kind: 'contact', fields: { name: 'A', email: 'bad' } }, ip));
+  for (let i = 0; i < 8; i++) await POST(req({ kind: 'contact', fields: { name: 'A', email: 'a@b.co' }, hs_hp: 'x' }, ip));
+  assert.equal((await POST(req({ kind: 'contact', fields: { name: 'A', email: 'a@b.co' } }, ip))).status, 200);
+});
+
+test('BotID verdict "bot" -> 403 and nothing sent', async () => {
+  process.env.BOTID_DEV_BYPASS = 'BAD-BOT';
+  const res = await POST(req({ kind: 'booking', fields: booking }));
+  assert.equal(res.status, 403);
+  assert.deepEqual(await res.json(), { ok: false, error: "We couldn't verify this request automatically." });
+  assert.equal(calls.length, 0);
 });
 
 test('missing configuration -> 503 and nothing sent; Resend error -> 502; network error -> 502', async () => {

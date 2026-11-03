@@ -37,6 +37,8 @@ function vercelApiDev(): Plugin {
           for (const [key, value] of Object.entries(req.headers)) {
             if (value !== undefined) headers.set(key, Array.isArray(value) ? value.join(', ') : value);
           }
+          // Vercel sets the client address; mirror it so per-IP rate limiting behaves the same locally.
+          if (!headers.has('x-real-ip') && req.socket.remoteAddress) headers.set('x-real-ip', req.socket.remoteAddress);
           const response: Response = await handler(
             new Request(new URL(req.url!, `http://${req.headers.host}`), {
               method: req.method,
