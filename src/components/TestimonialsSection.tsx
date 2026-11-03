@@ -79,11 +79,11 @@ export const TestimonialsSection: React.FC = () => {
     setLikedReviews(prev => ({ ...prev, [id]: true }));
   };
 
-  // Compute average rating
+  // Average of the published (owner-approved) reviews; there is no rating until one exists.
   const totalReviews = testimonials.length;
   const averageRating = totalReviews > 0
-    ? (testimonials.reduce((acc, t) => acc + t.rating, 0) / totalReviews).toFixed(1)
-    : '5.0';
+    ? testimonials.reduce((acc, t) => acc + t.rating, 0) / totalReviews
+    : null;
 
   const filteredTestimonials = testimonials.filter(t => {
     if (filterRating === 'all') return true;
@@ -122,28 +122,36 @@ export const TestimonialsSection: React.FC = () => {
         {/* Review Summary & Action Header Bar */}
         <div className="bg-white dark:bg-[#201F1D] border border-gray-200 dark:border-gray-800 p-6 sm:p-8 mb-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
           {/* Average Rating Stats */}
-          <div className="flex items-center gap-6">
-            <div className="text-center md:text-left">
-              <span className="font-serif text-4xl sm:text-5xl font-semibold text-[#121212] dark:text-white">
-                {averageRating}
-              </span>
-              <span className="text-xs text-gray-400 block uppercase tracking-wider mt-1">out of 5.0</span>
-            </div>
-
-            <div className="h-12 w-px bg-gray-200 dark:bg-gray-800 hidden sm:block" />
-
-            <div>
-              <div className="flex items-center gap-1 mb-1">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className="w-5 h-5 fill-[#9E723B] text-[#9E723B]" />
-                ))}
+          {averageRating !== null ? (
+            <div className="flex items-center gap-6">
+              <div className="text-center md:text-left">
+                <span className="font-serif text-4xl sm:text-5xl font-semibold text-[#121212] dark:text-white">
+                  {averageRating.toFixed(1)}
+                </span>
+                <span className="text-xs text-gray-400 block uppercase tracking-wider mt-1">out of 5.0</span>
               </div>
-              <p className="text-xs font-semibold text-[#121212] dark:text-gray-200">
-                {totalReviews} {totalReviews === 1 ? 'Customer Review' : 'Customer Reviews'}
-              </p>
-              <span className="text-[11px] text-gray-500 dark:text-gray-400">100% Direct & Verified Submissions</span>
+
+              <div className="h-12 w-px bg-gray-200 dark:bg-gray-800 hidden sm:block" />
+
+              <div>
+                <div className="flex items-center gap-1 mb-1">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      className={`w-5 h-5 text-[#9E723B] ${s <= Math.round(averageRating) ? 'fill-[#9E723B]' : ''}`}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs font-semibold text-[#121212] dark:text-gray-200">
+                  {totalReviews} {totalReviews === 1 ? 'Customer Review' : 'Customer Reviews'}
+                </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <p className="text-xs sm:text-sm text-[#2D2A26] dark:text-gray-300 max-w-sm text-center md:text-left">
+              Client reviews are published here once the studio has confirmed them.
+            </p>
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-3">
@@ -192,18 +200,12 @@ export const TestimonialsSection: React.FC = () => {
                 key={item.id}
                 className="bg-white dark:bg-[#201F1D] p-8 border border-gray-200 dark:border-gray-800 flex flex-col justify-between relative group hover:border-[#9E723B] transition-all shadow-sm hover:shadow-md"
               >
-                {/* Top Bar with Rating & Verified Badge */}
+                {/* Top Bar with Rating */}
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <div className="flex items-center gap-1">
-                      {[...Array(item.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-[#9E723B] text-[#9E723B]" />
-                      ))}
-                    </div>
-
-                    <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-[#9E723B] font-bold bg-[#FAF6F0] dark:bg-gray-800 px-2 py-0.5 border border-[#9E723B]/30">
-                      <CheckCircle2 className="w-3 h-3 text-[#9E723B]" /> Verified Client
-                    </span>
+                  <div className="flex items-center gap-1 mb-4">
+                    {[...Array(item.rating)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-[#9E723B] text-[#9E723B]" />
+                    ))}
                   </div>
 
                   {/* Review Body */}

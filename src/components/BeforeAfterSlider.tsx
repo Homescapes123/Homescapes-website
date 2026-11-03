@@ -1,33 +1,23 @@
 import React, { useState } from 'react';
 import { Sliders, Sparkles } from 'lucide-react';
 
+interface BeforeAfterPair {
+  title: string;
+  location: string;
+  before: string;
+  after: string;
+  details: string;
+}
+
 export const BeforeAfterSlider: React.FC = () => {
   const [sliderPos, setSliderPos] = useState(50);
   const [selectedPairIndex, setSelectedPairIndex] = useState(0);
 
-  const pairs = [
-    {
-      title: 'TriBeCa Living Room Transformation',
-      location: 'New York Penthouse',
-      before: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1600&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600&auto=format&fit=crop',
-      details: 'Converted a raw 1980s brick warehouse floor into a seamless French Parisian light haven with hand-carved Calacatta Viola fireplaces.'
-    },
-    {
-      title: 'Kensington Monolithic Kitchen',
-      location: 'London Townhouse',
-      before: 'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?q=80&w=1600&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1600&auto=format&fit=crop',
-      details: 'Replaced dated oak cabinetry with a 14-foot Arabescato marble island, concealed Gaggenau appliances, and soft perimeter shadow coves.'
-    },
-    {
-      title: 'Beverly Hills Solaria Living Suite',
-      location: 'California Estate',
-      before: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1600&auto=format&fit=crop',
-      after: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop',
-      details: 'Introduced floor-to-ceiling pivot glass portals, micro-cement plaster walls, and custom motorized exterior shade louvers.'
-    }
-  ];
+  // Only the studio's own before/after photographs belong here. The previous stock pairs (foreign
+  // projects) were removed and are kept in backups/legacy-cms-2026-11-03/content.json for reference.
+  const pairs: BeforeAfterPair[] = [];
+
+  if (pairs.length === 0) return null;
 
   const currentPair = pairs[selectedPairIndex];
 

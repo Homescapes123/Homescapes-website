@@ -127,7 +127,6 @@ export const WhyChooseUs: React.FC = () => {
             <div className="space-y-2">
               <div className="h-24 bg-[url('https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=400')] bg-cover bg-center border border-[#B58E5B]/30" />
               <span className="block text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 font-medium">Smoked Swiss Oak</span>
-              <span className="block text-[10px] text-gray-400 font-light">Alpine Forest, Switzerland</span>
             </div>
 
             <div className="space-y-2">

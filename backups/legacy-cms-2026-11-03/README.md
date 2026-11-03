@@ -26,6 +26,16 @@ The full source snapshot is the local git tag `backup/pre-admin-removal` (commit
    every section, and checks the SHA-256 of both founder photos. A deliberately corrupted copy
    fails the check, and the restored file passes.
 
+   The sources have changed since (for example, the stock before/after pairs were removed), so
+   verify against the tagged snapshot:
+
+   ```sh
+   git worktree add --detach /tmp/hs-verify backup/pre-admin-removal
+   cp -R backups /tmp/hs-verify/ && ln -s "$PWD/node_modules" /tmp/hs-verify/node_modules
+   (cd /tmp/hs-verify && node backups/legacy-cms-2026-11-03/export-content.mjs --verify)
+   git worktree remove --force /tmp/hs-verify
+   ```
+
 ## Not covered: content that exists only in someone's browser
 
 The old admin saved edits **only in the browser where they were made** (localStorage). Two kinds

@@ -4,7 +4,7 @@
 //   node backups/legacy-cms-2026-11-03/export-content.mjs --verify -> re-reads the sources and checks content.json matches
 //
 // Sources are read from the working tree, so run --verify against the tagged commit
-// (git checkout backup/pre-admin-removal) if the source files have since changed.
+// (see README.md, "How the backup was verified") if the source files have since changed.
 
 import { build } from 'esbuild';
 import ts from 'typescript';
