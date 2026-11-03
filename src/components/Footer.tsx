@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useStudio } from '../context/StudioContext';
 import { Mail, Instagram, Linkedin, Facebook, ArrowUp, Send, Check } from 'lucide-react';
 
+// Hidden until a mailing-list provider is connected: the form never saved sign-ups.
+const SHOW_NEWSLETTER = false;
+
 export const Footer: React.FC = () => {
   const { setCurrentView, setIsBookingOpen, openOwnerPortal } = useStudio();
   const [newsletterEmail, setNewsletterEmail] = useState('');
@@ -25,6 +28,7 @@ export const Footer: React.FC = () => {
     <footer id="main-footer" className="bg-[#181716] text-gray-300 transition-colors duration-300 border-t border-gray-800">
       
       {/* Upper Newsletter Bar */}
+      {SHOW_NEWSLETTER && (
       <div className="border-b border-gray-800 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center md:text-left">
@@ -65,6 +69,7 @@ export const Footer: React.FC = () => {
           </form>
         </div>
       </div>
+      )}
 
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

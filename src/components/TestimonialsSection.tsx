@@ -12,9 +12,12 @@ import {
   MapPin,
   Briefcase
 } from 'lucide-react';
+import { submitEnquiry } from '../lib/enquiry';
+import { HoneypotField } from './HoneypotField';
+import { EnquiryErrorNotice } from './EnquiryErrorNotice';
 
 export const TestimonialsSection: React.FC = () => {
-  const { testimonials, addTestimonial } = useStudio();
+  const { testimonials } = useStudio();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [filterRating, setFilterRating] = useState<number | 'all'>('all');
   const [helpfulCounts, setHelpfulCounts] = useState<{ [id: string]: number }>({});
@@ -29,36 +32,38 @@ export const TestimonialsSection: React.FC = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [review, setReview] = useState('');
   const [clientRole, setClientRole] = useState('');
+  const [contact, setContact] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmitReview = (e: React.FormEvent) => {
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setError('');
+  };
+
+  // Reviews are emailed to the studio for approval; nothing is published from the browser.
+  const handleSubmitReview = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!name.trim() || !review.trim()) return;
+    const form = e.currentTarget;
+    if (!name.trim() || !review.trim() || isSending) return;
 
-    // Default avatar based on initials or luxury neutral avatars
-    const avatarOptions = [
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=300&auto=format&fit=crop'
-    ];
-    const randomAvatar = avatarOptions[Math.floor(Math.random() * avatarOptions.length)];
-
-    addTestimonial({
-      clientName: name.trim(),
-      clientRole: clientRole.trim() || 'Homeowner',
-      location: location.trim() || 'India',
-      clientPhoto: randomAvatar,
-      projectTitle: projectTitle.trim() || 'Residential & Interior Project',
-      rating,
-      review: review.trim(),
-      featured: true
-    });
+    setIsSending(true);
+    setError('');
+    try {
+      await submitEnquiry('review', { name, location, projectTitle, clientRole, rating, review, contact }, form);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      return;
+    } finally {
+      setIsSending(false);
+    }
 
     // Reset form
     setName('');
     setLocation('');
     setProjectTitle('');
     setClientRole('');
+    setContact('');
     setRating(5);
     setReview('');
     setIsFormOpen(false);
@@ -94,8 +99,8 @@ export const TestimonialsSection: React.FC = () => {
           <div className="fixed bottom-6 right-6 z-50 bg-[#121212] dark:bg-white text-white dark:text-[#121212] px-6 py-4 shadow-2xl border border-[#9E723B] flex items-center gap-3 animate-slideUp">
             <CheckCircle2 className="w-5 h-5 text-[#9E723B] shrink-0" />
             <div>
-              <p className="text-xs uppercase tracking-widest font-bold">Review Published!</p>
-              <p className="text-xs text-gray-300 dark:text-gray-700">Thank you for sharing your experience with Homescapes Studio.</p>
+              <p className="text-xs uppercase tracking-widest font-bold">Review Submitted</p>
+              <p className="text-xs text-gray-300 dark:text-gray-700">Thank you! Your review has been sent to the studio and will appear here once approved.</p>
             </div>
           </div>
         )}
@@ -284,7 +289,7 @@ export const TestimonialsSection: React.FC = () => {
               {/* Close button */}
               <button
                 id="close-review-form-btn"
-                onClick={() => setIsFormOpen(false)}
+                onClick={closeForm}
                 className="absolute top-5 right-5 text-gray-400 hover:text-black dark:hover:text-white transition-colors"
               >
                 <X className="w-6 h-6" />
@@ -303,7 +308,8 @@ export const TestimonialsSection: React.FC = () => {
               </div>
 
               <form onSubmit={handleSubmitReview} className="space-y-5">
-                
+                <HoneypotField />
+
                 {/* Rating Selection */}
                 <div>
                   <label className="block text-xs uppercase tracking-wider font-bold text-[#121212] dark:text-gray-200 mb-2">
@@ -422,11 +428,31 @@ export const TestimonialsSection: React.FC = () => {
                   />
                 </div>
 
+                {/* Private contact so the studio can confirm the reviewer is a client */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-bold text-[#121212] dark:text-gray-200 mb-1.5">
+                    Email or Phone (private)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Only used to confirm you're a client. Never published."
+                    value={contact}
+                    onChange={(e) => setContact(e.target.value)}
+                    className="w-full px-4 py-2.5 text-xs bg-[#FAF8F5] dark:bg-gray-900 border border-gray-300 dark:border-gray-700 focus:outline-none focus:border-[#9E723B] text-[#121212] dark:text-white"
+                  />
+                </div>
+
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Reviews are checked by the studio before they appear on the website.
+                </p>
+
+                {error && <EnquiryErrorNotice message={error} />}
+
                 {/* Submit button */}
                 <div className="pt-3 flex items-center justify-end gap-3 border-t border-gray-100 dark:border-gray-800">
                   <button
                     type="button"
-                    onClick={() => setIsFormOpen(false)}
+                    onClick={closeForm}
                     className="px-5 py-3 text-xs uppercase tracking-widest font-semibold text-gray-500 hover:text-black dark:hover:text-white"
                   >
                     Cancel
@@ -434,9 +460,10 @@ export const TestimonialsSection: React.FC = () => {
                   <button
                     id="submit-review-form-btn"
                     type="submit"
-                    className="px-8 py-3.5 bg-[#9E723B] text-white text-xs uppercase tracking-[0.2em] font-bold hover:bg-[#121212] transition-colors shadow-md"
+                    disabled={isSending}
+                    className="px-8 py-3.5 bg-[#9E723B] text-white text-xs uppercase tracking-[0.2em] font-bold hover:bg-[#121212] transition-colors shadow-md disabled:opacity-60 disabled:cursor-wait"
                   >
-                    Publish Review
+                    {isSending ? 'Sending…' : 'Submit Review'}
                   </button>
                 </div>
               </form>
