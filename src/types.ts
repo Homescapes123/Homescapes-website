@@ -118,14 +118,14 @@ export interface ConsultationBooking {
   createdAt: string;
 }
 
-export interface FounderData {
+// A person in the About section's leadership block. Managed in the CMS ("Leadership profile").
+export interface LeaderProfile {
+  id: string;
   name: string;
-  title: string;
-  role: string;
-  photo: string;
-  quote: string;
-  bio: string;
-  email?: string;
-  phone?: string;
-  achievements: string[];
+  designation: string; // e.g. "Founder & Principal Director"
+  shortTitle: string; // label on the portrait, e.g. "Founder"
+  photo?: string; // left empty until a real photograph is supplied; a monogram is shown instead
+  quote?: string;
+  bio?: string;
+  highlights?: string[];
 }

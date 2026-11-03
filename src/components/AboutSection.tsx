@@ -5,19 +5,14 @@ import {
   ShieldCheck,
   Heart,
   Sparkles,
-  ArrowRight,
-  Quote,
-  CheckCircle2,
-  Mail,
-  Phone
+  ArrowRight
 } from 'lucide-react';
-import defaultFounderPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
+import { LeadershipSection } from './LeadershipSection';
 
 export const AboutSection: React.FC = () => {
   const {
     setIsBookingOpen,
-    setCurrentView,
-    founderData
+    setCurrentView
   } = useStudio();
 
   return (
@@ -160,110 +155,10 @@ export const AboutSection: React.FC = () => {
 
         </div>
 
-        {/* Compact Instagram-Style Founder Section */}
-        <div className="bg-[#E8DFC8] dark:bg-[#1C1B19] border border-[#B58E5B]/50 p-6 sm:p-8 relative overflow-hidden shadow-lg rounded-xl">
-
-          <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-10">
-
-            {/* Instagram-style Circle Avatar */}
-            <div className="relative group shrink-0">
-              {/* Instagram Gradient Ring */}
-              <div className="p-[3px] rounded-full bg-gradient-to-tr from-[#B58E5B] via-[#F3E3C3] to-[#8C6638] shadow-xl hover:shadow-[#B58E5B]/20 transition-all duration-300">
-                <div className="p-1 bg-[#E8DFC8] dark:bg-[#1C1B19] rounded-full">
-                  <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden bg-gray-900 group">
-                    <img
-                      src={founderData.photo}
-                      alt={`${founderData.name} - ${founderData.title}`}
-                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = defaultFounderPhoto;
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Instagram Story / Founder Verified Badge */}
-              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#121212] border border-[#B58E5B] px-3.5 py-1 rounded-full shadow-md flex items-center gap-1.5 whitespace-nowrap">
-                <span className="w-2 h-2 rounded-full bg-[#B58E5B] animate-pulse" />
-                <span className="text-[10px] uppercase tracking-widest text-white font-bold">FOUNDER</span>
-              </div>
-            </div>
-
-            {/* Founder Info & Bio (Compact) */}
-            <div className="flex-1 space-y-4 text-center md:text-left">
-              <div>
-                <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <span className="text-[10px] tracking-[0.25em] uppercase text-[#B58E5B] font-bold block">
-                    FOUNDER & DIRECTOR
-                  </span>
-                  <span className="text-xs text-gray-400">•</span>
-                  <span className="text-xs text-[#B58E5B] font-mono">@homescapes.founder</span>
-                </div>
-                <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#1F1F1F] dark:text-white mt-0.5">
-                  {founderData.name}
-                </h3>
-
-                {/* Founder Direct Contact Info */}
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-gray-700 dark:text-gray-200 font-medium mt-1">
-                  <a
-                    href={`mailto:${founderData.email || 'workwithhomescapes@gmail.com'}`}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#121110]/5 dark:bg-white/10 border border-[#B58E5B]/40 hover:border-[#B58E5B] text-[#B58E5B] transition-colors"
-                  >
-                    <Mail className="w-3.5 h-3.5 text-[#B58E5B]" />
-                    <span>{founderData.email || 'workwithhomescapes@gmail.com'}</span>
-                  </a>
-                  <a
-                    href={`tel:${(founderData.phone || '+91 7380334333').replace(/\s+/g, '')}`}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#121110]/5 dark:bg-white/10 border border-[#B58E5B]/40 hover:border-[#B58E5B] text-[#B58E5B] transition-colors"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-[#B58E5B]" />
-                    <span>{founderData.phone || '+91 7380334333'}</span>
-                  </a>
-                </div>
-              </div>
-
-              <div className="relative pl-4 border-l-2 border-[#B58E5B] text-left">
-                <p className="font-serif italic text-sm sm:text-base text-[#1F1F1F] dark:text-gray-200 leading-relaxed">
-                  "{founderData.quote}"
-                </p>
-              </div>
-
-              <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed font-light text-left">
-                {founderData.bio}
-              </p>
-
-              {/* Achievements Badges */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2 pt-1">
-                {founderData.achievements.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 text-[11px] text-gray-700 dark:text-gray-300 font-medium">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#B58E5B] shrink-0" />
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                <button
-                  id="consult-hariom-srivastava-btn"
-                  onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-2.5 bg-[#B58E5B] text-white text-xs uppercase tracking-[0.15em] font-bold hover:bg-[#121212] transition-colors shadow-md flex items-center gap-2"
-                >
-                  <span>Book Session with {founderData.name.split(' ')[0]}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
+        {/* Founder & Co-Founder profiles (managed in the CMS) */}
+        <LeadershipSection />
 
       </div>
     </section>
   );
 };
-
-
-

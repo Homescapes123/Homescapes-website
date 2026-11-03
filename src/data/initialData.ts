@@ -1,4 +1,32 @@
-import { Project, Service, Testimonial, ProcessStep, FAQItem, BlogPost, InstagramPost } from '../types';
+import { Project, Service, Testimonial, ProcessStep, FAQItem, BlogPost, InstagramPost, LeaderProfile } from '../types';
+import hariomSrivastavaPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
+
+// Fallback content until the site reads from the CMS, where the owner edits these profiles.
+// Only details supplied by the studio belong here: Yashdeep Singh's photograph and biography
+// are added once provided.
+export const INITIAL_LEADERSHIP: LeaderProfile[] = [
+  {
+    id: 'leader-hariom-srivastava',
+    name: 'Hariom Srivastava',
+    designation: 'Founder & Principal Director',
+    shortTitle: 'Founder',
+    photo: hariomSrivastavaPhoto,
+    quote: 'Our philosophy at Homescapes Studio is grounded in creating spaces that resonate with soul, elegance, and effortless luxury. Every villa, penthouse, or workspace we craft reflects the unique personality of its owner while maintaining absolute architectural integrity.',
+    bio: "Under Hariom Srivastava's visionary leadership, Homescapes Studio is headquartered in Indira Nagar, Sugamau, Lucknow, and has spearheaded over 40 landmark luxury residential and commercial projects across Lucknow, Delhi NCR, Mumbai, Bengaluru, Hyderabad, and Goa.",
+    highlights: [
+      'Pan-India Turnkey Delivery',
+      'VR 3D Spatial Walkthroughs',
+      'Bespoke Indian & Italian Sourcing',
+      '3-Year Craftsmanship Warranty'
+    ]
+  },
+  {
+    id: 'leader-yashdeep-singh',
+    name: 'Yashdeep Singh',
+    designation: 'Co-Founder & Director',
+    shortTitle: 'Co-Founder'
+  }
+];
 
 export const INITIAL_PROJECTS: Project[] = [
   {
