@@ -2,8 +2,9 @@ import { Project, Service, Testimonial, ProcessStep, FAQItem, BlogPost, Instagra
 import hariomSrivastavaPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
 
 // Fallback content until the site reads from the CMS, where the owner edits these profiles.
-// Only details supplied by the studio belong here: Yashdeep Singh's photograph and full biography
-// are added once provided.
+// Yashdeep Singh's photograph is added once supplied. His quote, bio and highlights are a draft built
+// only from facts already on the site (role, studio location, services, process); he must approve
+// them before they go to production, and personal details (experience, background) come from him.
 export const INITIAL_LEADERSHIP: LeaderProfile[] = [
   {
     id: 'leader-hariom-srivastava',
@@ -25,8 +26,15 @@ export const INITIAL_LEADERSHIP: LeaderProfile[] = [
     name: 'Yashdeep Singh',
     designation: 'Co-Founder & Director',
     shortTitle: 'Co-Founder',
-    // Role-based only; replace with his own biography once supplied.
-    bio: 'As Co-Founder & Director, Yashdeep Singh leads Homescapes Studio together with founder Hariom Srivastava from the studio in Indira Nagar, Sugamau, Lucknow.'
+    // Draft awaiting Yashdeep's approval (see note above). Keep in step with studio/scripts/build-seed.mjs.
+    quote: 'A design is only as good as the home it becomes. We carry every project from the first conversation to the final handover with the same care, so that what our clients see in their 3D walkthrough is exactly what they walk into.',
+    bio: 'As Co-Founder & Director, Yashdeep Singh leads Homescapes Studio alongside founder Hariom Srivastava from its home in Indira Nagar, Sugamau, Lucknow. Together they oversee the studio\'s residential and commercial interiors, taking each one through a single, carefully managed process: consultation and site measurement, concept design and 3D visualisation, material selection, on-site execution and the final handover.',
+    highlights: [
+      'Residential & Commercial Interiors',
+      'Precise Site Measurement',
+      'Space Planning & Layout',
+      'Quality Checks Before Handover'
+    ]
   }
 ];
 

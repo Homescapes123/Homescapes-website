@@ -75,7 +75,15 @@ docs.push(
     name: 'Yashdeep Singh',
     designation: 'Co-Founder & Director',
     shortTitle: 'Co-Founder',
-    bio: 'As Co-Founder & Director, Yashdeep Singh leads Homescapes Studio together with founder Hariom Srivastava from the studio in Indira Nagar, Sugamau, Lucknow.',
+    // Draft awaiting Yashdeep's approval; same text as INITIAL_LEADERSHIP.
+    quote: 'A design is only as good as the home it becomes. We carry every project from the first conversation to the final handover with the same care, so that what our clients see in their 3D walkthrough is exactly what they walk into.',
+    bio: "As Co-Founder & Director, Yashdeep Singh leads Homescapes Studio alongside founder Hariom Srivastava from its home in Indira Nagar, Sugamau, Lucknow. Together they oversee the studio's residential and commercial interiors, taking each one through a single, carefully managed process: consultation and site measurement, concept design and 3D visualisation, material selection, on-site execution and the final handover.",
+    highlights: [
+      'Residential & Commercial Interiors',
+      'Precise Site Measurement',
+      'Space Planning & Layout',
+      'Quality Checks Before Handover',
+    ],
     order: 2,
   },
 )
