@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStudio } from '../context/StudioContext';
 import { LeaderProfile } from '../types';
-import { ArrowRight, CheckCircle2, Mail, Phone } from 'lucide-react';
+import { CheckCircle2, Mail, Phone } from 'lucide-react';
 
 const STUDIO_EMAIL = 'workwithhomescapes@gmail.com';
 const STUDIO_PHONE = '+91 7380334333';
@@ -95,7 +95,7 @@ const LeaderProfileColumn: React.FC<{ leader: LeaderProfile }> = ({ leader }) =>
 );
 
 export const LeadershipSection: React.FC = () => {
-  const { leadership, goToContact } = useStudio();
+  const { leadership } = useStudio();
   if (leadership.length === 0) return null;
 
   return (
@@ -137,14 +137,6 @@ export const LeadershipSection: React.FC = () => {
           <Phone className="w-3.5 h-3.5 text-[#B58E5B]" />
           <span>{STUDIO_PHONE}</span>
         </a>
-        <button
-          id="leadership-book-btn"
-          onClick={() => goToContact()}
-          className="px-6 py-2.5 bg-[#B58E5B] text-white text-xs uppercase tracking-[0.15em] font-bold hover:bg-[#121212] transition-colors shadow-md flex items-center gap-2"
-        >
-          <span>Book a Consultation</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </button>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 // Sends a form submission to /api/enquiry (api/enquiry.ts), which emails it to the studio.
 // Resolves only when the server confirms the email was sent; every other outcome throws.
 
-export type EnquiryKind = 'booking' | 'contact' | 'review' | 'recovery';
+export type EnquiryKind = 'booking' | 'contact' | 'recovery';
 
 // Name of the hidden anti-spam field rendered by <HoneypotField />.
 export const HONEYPOT_FIELD = 'hs_hp';

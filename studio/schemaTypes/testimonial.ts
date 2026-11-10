@@ -1,8 +1,8 @@
 import {CommentIcon} from '@sanity/icons/Comment'
 import {defineField, defineType} from 'sanity'
 
-// Reviews arrive by email ("Review awaiting approval"). Add one here only after checking it is genuine;
-// it appears on the website once published.
+// Clients review the studio on its Google listing. Add one here only after checking it is genuine;
+// it appears on the website (up to three) once published.
 export const testimonial = defineType({
   name: 'testimonial',
   title: 'Client review',

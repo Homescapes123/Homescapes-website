@@ -1,4 +1,4 @@
-import { Project, Service, Testimonial, ProcessStep, FAQItem, BlogPost, InstagramPost, LeaderProfile } from '../types';
+import { Project, Service, Testimonial, ProcessStep, FAQItem, BlogPost, LeaderProfile } from '../types';
 import hariomSrivastavaPhoto from '../assets/images/hariom_srivastava_founder_1785395029579.jpg';
 
 // Fallback content until the site reads from the CMS, where the owner edits these profiles.
@@ -517,40 +517,5 @@ Glass, marble, and hardwood flooring have high sound reflection coefficients. To
     readTime: '4 min read',
     coverImage: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200&auto=format&fit=crop',
     featured: false
-  }
-];
-
-export const INITIAL_INSTAGRAM_POSTS: InstagramPost[] = [
-  {
-    id: 'ig-1',
-    imageUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800&auto=format&fit=crop',
-    likes: 1842,
-    comments: 64,
-    caption: 'Sunlight filtering through natural linen sheer drapes at The Grand Horizon Penthouse in Worli. #HomescapesStudio #LuxuryInteriors #MumbaiPenthouse',
-    link: 'https://instagram.com'
-  },
-  {
-    id: 'ig-2',
-    imageUrl: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=800&auto=format&fit=crop',
-    likes: 2150,
-    comments: 92,
-    caption: 'Monolithic Arabescato marble island handcrafted for our Indiranagar culinary studio in Bengaluru. #KitchenDesign #CustomJoinery #BangaloreInteriors',
-    link: 'https://instagram.com'
-  },
-  {
-    id: 'ig-3',
-    imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
-    likes: 3410,
-    comments: 118,
-    caption: 'Golden hour at Villa Solaria Estate on Golf Course Road. Indoor-outdoor living redefined. #GurgaonArchitecture #ModernIndianLuxury',
-    link: 'https://instagram.com'
-  },
-  {
-    id: 'ig-4',
-    imageUrl: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=800&auto=format&fit=crop',
-    likes: 1420,
-    comments: 38,
-    caption: 'Tranquil master bedroom suite in Jubilee Hills featuring natural teak and warm circadian light coves. #HyderabadDesign #BedroomInspiration',
-    link: 'https://instagram.com'
   }
 ];

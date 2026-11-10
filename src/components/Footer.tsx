@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useStudio } from '../context/StudioContext';
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from '../data/studioLinks';
 import { Mail, Instagram, Linkedin, Facebook, ArrowUp, Send, Check } from 'lucide-react';
 
 // Hidden until a mailing-list provider is connected: the form never saved sign-ups.
 const SHOW_NEWSLETTER = false;
 
 export const Footer: React.FC = () => {
-  const { setCurrentView, goToContact } = useStudio();
+  const { setCurrentView } = useStudio();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
 
@@ -96,7 +97,7 @@ export const Footer: React.FC = () => {
             </p>
 
             <div className="flex items-center space-x-4 pt-2">
-              <a href="https://instagram.com/homescapes.studio/" target="_blank" rel="noopener noreferrer" className="p-2 border border-gray-800 text-gray-400 hover:text-[#B58E5B] hover:border-[#B58E5B] transition-colors" title="Instagram">
+              <a href={INSTAGRAM_URL} aria-label={`Homescapes Studio on Instagram (${INSTAGRAM_HANDLE})`} target="_blank" rel="noopener noreferrer" className="p-2 border border-gray-800 text-gray-400 hover:text-[#B58E5B] hover:border-[#B58E5B] transition-colors" title="Instagram">
                 <Instagram className="w-4 h-4" />
               </a>
             </div>
@@ -146,14 +147,6 @@ export const Footer: React.FC = () => {
               <p className="pt-2 text-white font-medium">+91 7380334333</p>
               <p className="text-[#B58E5B]">workwithhomescapes@gmail.com</p>
               <p className="text-gray-400 text-[11px] pt-1">Mon – Sat: 9:00 AM – 9:00 PM IST</p>
-              
-              <button
-                id="footer-book-btn"
-                onClick={() => goToContact()}
-                className="mt-4 px-4 py-2 bg-[#B58E5B] text-white text-[10px] uppercase tracking-widest font-medium hover:bg-white hover:text-black transition-colors block w-full text-center"
-              >
-                Book Consultation
-              </button>
             </div>
           </div>
 

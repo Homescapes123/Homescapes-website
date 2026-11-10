@@ -7,7 +7,7 @@ reviews, services, FAQs and the studio's contact details.
 - **Owner-only.** The Studio requires a Sanity sign-in with an invited account. Website visitors never
   see it and need no account.
 - **Separate from the website.** It has its own `package.json` and is not part of the Vercel build.
-- **No enquiries here.** Enquiries and review submissions are emailed to the studio and never stored
+- **No enquiries here.** Enquiries are emailed to the studio and never stored
   in Sanity (datasets on the free plan are publicly readable).
 
 Status: schemas and editor are ready, with a placeholder project ID. Nothing has been deployed, and
@@ -47,8 +47,9 @@ the website does not read from Sanity yet.
   a real photograph; initials are shown instead.
 - **Portfolio projects → Needs owner review**: confirm each project is real and replace stock photos
   with your own, then set *Review status* to *Approved*.
-- **Client reviews**: reviews arrive by email ("Review awaiting approval"). Add one here only if it is
-  from a real client, tick the confirmation box, and publish.
+- **Client reviews**: clients leave reviews on the studio's Google listing (the website's "Review Us on
+  Google" button). To feature one on the website, add it here only if it is from a real client, tick the
+  confirmation box, and publish. Up to three are shown.
 - **Before & after**: the section stays hidden on the website until you add your own photos.
 
 ## Plan limits (checked 2026-11-04)

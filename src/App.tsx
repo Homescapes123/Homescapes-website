@@ -8,11 +8,9 @@ import { FeaturedProjects } from './components/FeaturedProjects';
 import { ProjectDetailModal } from './components/ProjectDetailModal';
 import { WhyChooseUs } from './components/WhyChooseUs';
 import { DesignProcess } from './components/DesignProcess';
-import { TestimonialsSection } from './components/TestimonialsSection';
+import { ReviewsSection } from './components/ReviewsSection';
 import { BeforeAfterSlider } from './components/BeforeAfterSlider';
-import { StatisticsSection } from './components/StatisticsSection';
 import { FAQSection } from './components/FAQSection';
-import { InstagramFeed } from './components/InstagramFeed';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
@@ -26,19 +24,14 @@ const MainContent: React.FC = () => {
 
   return (
     <main className="min-h-screen">
+      {/* The home page is a short overview; each menu page holds the full detail for its topic. */}
       {currentView === 'home' && (
         <>
           <Hero />
-          <AboutSection />
-          <ServicesSection />
+          <AboutSection compact />
+          <ServicesSection compact />
           <FeaturedProjects />
-          <WhyChooseUs />
-          <DesignProcess />
-          <TestimonialsSection />
-          <BeforeAfterSlider />
-          <StatisticsSection />
-          <FAQSection />
-          <InstagramFeed />
+          <ReviewsSection />
           <ContactSection />
         </>
       )}
@@ -47,8 +40,7 @@ const MainContent: React.FC = () => {
         <div className="pt-16">
           <AboutSection />
           <WhyChooseUs />
-          <DesignProcess />
-          <StatisticsSection />
+          <ReviewsSection />
           <ContactSection />
         </div>
       )}

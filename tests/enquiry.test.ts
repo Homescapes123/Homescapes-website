@@ -120,18 +120,14 @@ test('past preferred date -> 400', async () => {
   assert.match((await res.json()).error, /past/);
 });
 
-test('bad phone -> 400; review rating outside 1-5 -> 400', async () => {
+test('bad phone -> 400', async () => {
   assert.equal((await POST(req({ kind: 'contact', fields: { name: 'A', email: 'a@b.co', phone: 'N/A' } }))).status, 400);
-  assert.equal((await POST(req({ kind: 'review', fields: { name: 'A', location: 'Lucknow', rating: 9, review: 'x' } }))).status, 400);
 });
 
-test('valid review is emailed for approval and says it is unpublished', async () => {
+test('reviews are no longer accepted: the site sends reviewers to Google', async () => {
   const res = await POST(req({ kind: 'review', fields: { name: 'Meera', location: 'Lucknow', rating: 5, review: 'Lovely work' } }));
-  assert.equal(res.status, 200);
-  const body = sent();
-  assert.equal(body.subject, 'Review awaiting approval: Meera (5/5)');
-  assert.ok(body.text.includes('It is not published'));
-  assert.equal(body.reply_to, undefined);
+  assert.equal(res.status, 400);
+  assert.equal(calls.length, 0);
 });
 
 test('unknown kind, non-object fields, invalid JSON -> 400', async () => {

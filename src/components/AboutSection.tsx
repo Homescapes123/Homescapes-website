@@ -9,11 +9,9 @@ import {
 } from 'lucide-react';
 import { LeadershipSection } from './LeadershipSection';
 
-export const AboutSection: React.FC = () => {
-  const {
-    goToContact,
-    setCurrentView
-  } = useStudio();
+// `compact` is the home page version: the studio values are left for the About page.
+export const AboutSection: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+  const { setCurrentView } = useStudio();
 
   return (
     <section id="about-us-section" className="py-24 bg-[#E2D9CD] dark:bg-[#121110] transition-colors duration-300 relative overflow-hidden">
@@ -64,6 +62,7 @@ export const AboutSection: React.FC = () => {
             </p>
 
             {/* Core Values / Features Grid */}
+            {!compact && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
               <div className="flex gap-4 items-start">
                 <div className="w-10 h-10 border border-[#B58E5B]/40 flex items-center justify-center shrink-0 bg-[#D8CBBE]/20 dark:bg-gray-800 text-[#B58E5B]">
@@ -113,44 +112,24 @@ export const AboutSection: React.FC = () => {
                 </div>
               </div>
             </div>
+            )}
 
-            {/* Experience Stats Row */}
-            <div className="pt-6 border-t border-[#D8CBBE]/50 dark:border-gray-800 flex items-center justify-between gap-6">
-              <div>
-                <span className="font-serif text-3xl sm:text-4xl text-[#1F1F1F] dark:text-white font-medium">3+</span>
-                <span className="block text-[10px] uppercase tracking-widest text-[#B58E5B] mt-0.5">Years Experience</span>
+            {/* The About page is where the full story lives */}
+            {compact && (
+              <div className="pt-4">
+                <button
+                  id="about-learn-more-btn"
+                  onClick={() => {
+                    setCurrentView('about');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="px-6 py-3.5 bg-[#1F1F1F] dark:bg-[#B58E5B] text-white text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#B58E5B] dark:hover:bg-white dark:hover:text-[#1F1F1F] transition-all flex items-center gap-2 group"
+                >
+                  <span>Read Full Studio Story</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
-              <div className="w-px h-10 bg-[#D8CBBE] dark:bg-gray-800" />
-              <div>
-                <span className="font-serif text-3xl sm:text-4xl text-[#1F1F1F] dark:text-white font-medium">40+</span>
-                <span className="block text-[10px] uppercase tracking-widest text-[#B58E5B] mt-0.5">Projects Completed</span>
-              </div>
-              <div className="w-px h-10 bg-[#D8CBBE] dark:bg-gray-800" />
-              <div>
-                <span className="font-serif text-3xl sm:text-4xl text-[#1F1F1F] dark:text-white font-medium">98%</span>
-                <span className="block text-[10px] uppercase tracking-widest text-[#B58E5B] mt-0.5">Satisfaction Rate</span>
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="pt-4 flex items-center gap-4">
-              <button
-                id="about-learn-more-btn"
-                onClick={() => setCurrentView('about')}
-                className="px-6 py-3.5 bg-[#1F1F1F] dark:bg-[#B58E5B] text-white text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#B58E5B] dark:hover:bg-white dark:hover:text-[#1F1F1F] transition-all flex items-center gap-2 group"
-              >
-                <span>Read Full Studio Story</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-
-              <button
-                id="about-consult-btn"
-                onClick={() => goToContact()}
-                className="px-6 py-3.5 border border-[#1F1F1F] dark:border-white text-[#1F1F1F] dark:text-white text-xs uppercase tracking-[0.2em] font-medium hover:border-[#B58E5B] hover:text-[#B58E5B] transition-all"
-              >
-                Consult Director
-              </button>
-            </div>
+            )}
           </div>
 
         </div>

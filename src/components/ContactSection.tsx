@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, MessageSquare } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, MessageSquare, Instagram } from 'lucide-react';
 import { submitEnquiry } from '../lib/enquiry';
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from '../data/studioLinks';
 import { HoneypotField } from './HoneypotField';
 import { EnquiryErrorNotice } from './EnquiryErrorNotice';
 
@@ -130,6 +131,25 @@ export const ContactSection: React.FC = () => {
                     <span className="text-sm text-gray-100 font-medium block">
                       Monday – Saturday: 9:00 AM – 9:00 PM IST
                     </span>
+                  </div>
+                </div>
+
+                {/* Instagram */}
+                <div className="flex items-start gap-3.5 p-3.5 bg-[#121110] border border-[#B58E5B]/30 transition-colors hover:border-[#B58E5B]/60">
+                  <Instagram className="w-5 h-5 text-[#B58E5B] shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-[#B58E5B] font-semibold block mb-0.5">
+                      Follow Our Work
+                    </span>
+                    <a
+                      id="contact-instagram-link"
+                      href={INSTAGRAM_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-gray-100 font-medium hover:text-[#B58E5B] transition-colors block"
+                    >
+                      {INSTAGRAM_HANDLE} on Instagram
+                    </a>
                   </div>
                 </div>
               </div>

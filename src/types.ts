@@ -93,15 +93,6 @@ export interface BlogPost {
   featured?: boolean;
 }
 
-export interface InstagramPost {
-  id: string;
-  imageUrl: string;
-  likes: number;
-  comments: number;
-  caption: string;
-  link: string;
-}
-
 export interface ConsultationBooking {
   id: string;
   name: string;

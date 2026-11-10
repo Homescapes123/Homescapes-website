@@ -17,8 +17,12 @@ import {
   X
 } from 'lucide-react';
 
-export const ServicesSection: React.FC = () => {
-  const { services, goToContact } = useStudio();
+// `compact` is the home page version: six services without feature lists, linking to the full page.
+const HOME_SERVICE_COUNT = 6;
+
+export const ServicesSection: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+  const { services, goToContact, setCurrentView } = useStudio();
+  const shown = compact ? services.slice(0, HOME_SERVICE_COUNT) : services;
   const [activeModalService, setActiveModalService] = useState<Service | null>(null);
 
   const getIcon = (iconName: string) => {
@@ -57,7 +61,7 @@ export const ServicesSection: React.FC = () => {
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => (
+          {shown.map((service, index) => (
             <div
               key={service.id}
               id={`service-card-${service.id}`}
@@ -84,7 +88,8 @@ export const ServicesSection: React.FC = () => {
                   {service.shortDescription}
                 </p>
 
-                {/* Key Features List */}
+                {/* Key Features List (full Services page only) */}
+                {!compact && (
                 <ul className="space-y-2.5 mb-6 border-t border-gray-100 dark:border-gray-800 pt-4">
                   {service.features.slice(0, 3).map((feat, fIdx) => (
                     <li key={fIdx} className="text-xs text-[#1F1F1F] dark:text-gray-200 font-medium flex items-center gap-2">
@@ -93,6 +98,7 @@ export const ServicesSection: React.FC = () => {
                     </li>
                   ))}
                 </ul>
+                )}
               </div>
 
               {/* Action Buttons */}
@@ -116,7 +122,22 @@ export const ServicesSection: React.FC = () => {
           ))}
         </div>
 
-        {/* CTA Banner */}
+        {compact ? (
+          <div className="mt-12 text-center">
+            <button
+              id="services-see-all-btn"
+              onClick={() => {
+                setCurrentView('services');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-2 px-8 py-4 border border-[#9E723B] text-[#121212] dark:text-white text-xs uppercase tracking-[0.2em] font-semibold hover:bg-[#9E723B] hover:text-white transition-colors"
+            >
+              <span>See All {services.length} Services</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+        /* CTA Banner */
         <div className="mt-16 p-8 sm:p-12 border border-[#9E723B]/40 text-center flex flex-col md:flex-row items-center justify-between gap-6 bg-white dark:bg-[#201F1D] shadow-md">
           <div className="text-left space-y-2">
             <h4 className="font-serif text-2xl text-[#121212] dark:text-white font-medium">
@@ -134,6 +155,7 @@ export const ServicesSection: React.FC = () => {
             Request Custom Proposal
           </button>
         </div>
+        )}
 
       </div>
 

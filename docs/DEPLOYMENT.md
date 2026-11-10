@@ -57,8 +57,8 @@ To configure in the Vercel dashboard:
 ## Testing on a preview deployment
 
 1. Push the branch; open the preview URL from Vercel.
-2. Submit each form (consultation, contact, review) from the site. Expected: success screen and an
-   email with a `[Preview]` subject at the Preview `ENQUIRY_TO_EMAIL` inbox.
+2. Submit the contact form from the site (every "Book consultation" button leads to it). Expected:
+   success screen and an email with a `[Preview]` subject at the Preview `ENQUIRY_TO_EMAIL` inbox.
 3. Confirm `curl -X POST <preview>/api/enquiry` without an Origin header returns 403, and that a
    non-browser request with a forged Origin is refused by BotID (403). If Vercel Authentication
    protects previews, curl gets 401 before reaching the function; use a protection-bypass token.
