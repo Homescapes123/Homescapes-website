@@ -51,11 +51,12 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Same order as the sections on the home page, so the underline moves left to right while scrolling down.
   const navItems: { label: string; view: NavView }[] = [
     { label: 'Home', view: 'home' },
     { label: 'About', view: 'about' },
-    { label: 'Portfolio', view: 'portfolio' },
     { label: 'Services', view: 'services' },
+    { label: 'Portfolio', view: 'portfolio' },
     { label: 'Contact', view: 'contact' }
   ];
 
