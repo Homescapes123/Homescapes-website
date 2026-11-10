@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export const DesignProcess: React.FC = () => {
-  const { setIsBookingOpen } = useStudio();
+  const { goToContact } = useStudio();
   const [activeStep, setActiveStep] = useState<number>(1);
 
   const getStepIcon = (iconName: string) => {
@@ -138,7 +138,7 @@ export const DesignProcess: React.FC = () => {
 
               <button
                 id="process-start-project-btn"
-                onClick={() => setIsBookingOpen(true)}
+                onClick={() => goToContact()}
                 className="w-full py-3.5 bg-[#121212] dark:bg-white text-white dark:text-[#121212] hover:bg-[#B58E5B] dark:hover:bg-[#B58E5B] dark:hover:text-white text-xs uppercase tracking-[0.2em] font-bold transition-all text-center shadow-xs"
               >
                 Initiate Stage 1 Consultation

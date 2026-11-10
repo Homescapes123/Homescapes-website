@@ -3,7 +3,7 @@ import { useStudio } from '../context/StudioContext';
 import { X, MapPin, Maximize2, Layers, IndianRupee, Calendar, User, ArrowLeft, ArrowRight } from 'lucide-react';
 
 export const ProjectDetailModal: React.FC = () => {
-  const { selectedProject, setSelectedProject, setIsBookingOpen } = useStudio();
+  const { selectedProject, setSelectedProject, goToContact } = useStudio();
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
   const [beforeAfterPos, setBeforeAfterPos] = useState(50);
 
@@ -241,7 +241,7 @@ export const ProjectDetailModal: React.FC = () => {
               id="project-detail-consult-cta-btn"
               onClick={() => {
                 setSelectedProject(null);
-                setIsBookingOpen(true);
+                goToContact();
               }}
               className="px-8 py-3.5 bg-[#B58E5B] text-white text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#1F1F1F] transition-all whitespace-nowrap"
             >

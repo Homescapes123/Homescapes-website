@@ -11,7 +11,7 @@ import { LeadershipSection } from './LeadershipSection';
 
 export const AboutSection: React.FC = () => {
   const {
-    setIsBookingOpen,
+    goToContact,
     setCurrentView
   } = useStudio();
 
@@ -145,7 +145,7 @@ export const AboutSection: React.FC = () => {
 
               <button
                 id="about-consult-btn"
-                onClick={() => setIsBookingOpen(true)}
+                onClick={() => goToContact()}
                 className="px-6 py-3.5 border border-[#1F1F1F] dark:border-white text-[#1F1F1F] dark:text-white text-xs uppercase tracking-[0.2em] font-medium hover:border-[#B58E5B] hover:text-[#B58E5B] transition-all"
               >
                 Consult Director

@@ -95,7 +95,7 @@ const LeaderProfileColumn: React.FC<{ leader: LeaderProfile }> = ({ leader }) =>
 );
 
 export const LeadershipSection: React.FC = () => {
-  const { leadership, setIsBookingOpen } = useStudio();
+  const { leadership, goToContact } = useStudio();
   if (leadership.length === 0) return null;
 
   return (
@@ -139,7 +139,7 @@ export const LeadershipSection: React.FC = () => {
         </a>
         <button
           id="leadership-book-btn"
-          onClick={() => setIsBookingOpen(true)}
+          onClick={() => goToContact()}
           className="px-6 py-2.5 bg-[#B58E5B] text-white text-xs uppercase tracking-[0.15em] font-bold hover:bg-[#121212] transition-colors shadow-md flex items-center gap-2"
         >
           <span>Book a Consultation</span>

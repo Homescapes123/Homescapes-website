@@ -4,7 +4,7 @@ import { FAQItem } from '../types';
 import { ChevronDown, Search, HelpCircle, MessageSquare } from 'lucide-react';
 
 export const FAQSection: React.FC = () => {
-  const { faqs, setIsBookingOpen } = useStudio();
+  const { faqs, goToContact } = useStudio();
   const [openFaqId, setOpenFaqId] = useState<string | null>(faqs[0]?.id || null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [localSearch, setLocalSearch] = useState<string>('');
@@ -131,7 +131,7 @@ export const FAQSection: React.FC = () => {
           </p>
           <button
             id="faq-ask-director-btn"
-            onClick={() => setIsBookingOpen(true)}
+            onClick={() => goToContact()}
             className="px-6 py-3 bg-[#B58E5B] text-white text-xs uppercase tracking-widest font-medium hover:bg-[#1F1F1F] transition-colors"
           >
             Ask Our Design Director

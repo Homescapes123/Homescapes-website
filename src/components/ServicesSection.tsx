@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export const ServicesSection: React.FC = () => {
-  const { services, setIsBookingOpen } = useStudio();
+  const { services, goToContact } = useStudio();
   const [activeModalService, setActiveModalService] = useState<Service | null>(null);
 
   const getIcon = (iconName: string) => {
@@ -128,7 +128,7 @@ export const ServicesSection: React.FC = () => {
           </div>
           <button
             id="services-custom-scope-btn"
-            onClick={() => setIsBookingOpen(true)}
+            onClick={() => goToContact()}
             className="px-8 py-4 bg-[#9E723B] text-white text-xs uppercase tracking-[0.2em] font-semibold hover:bg-[#121212] transition-all whitespace-nowrap shadow-lg shrink-0"
           >
             Request Custom Proposal
@@ -204,7 +204,7 @@ export const ServicesSection: React.FC = () => {
                 id="service-modal-inquire-btn"
                 onClick={() => {
                   setActiveModalService(null);
-                  setIsBookingOpen(true);
+                  goToContact();
                 }}
                 className="px-6 py-3 bg-[#9E723B] text-white text-xs uppercase tracking-widest font-semibold hover:bg-[#121212] transition-colors shadow-md"
               >

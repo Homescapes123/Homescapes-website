@@ -3,7 +3,7 @@ import { useStudio } from '../context/StudioContext';
 import { ArrowRight, Calendar, Compass, ChevronDown } from 'lucide-react';
 
 export const Hero: React.FC = () => {
-  const { setCurrentView, setIsBookingOpen } = useStudio();
+  const { setCurrentView, goToContact } = useStudio();
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export const Hero: React.FC = () => {
 
           <button
             id="hero-book-consultation-btn"
-            onClick={() => setIsBookingOpen(true)}
+            onClick={() => goToContact()}
             className="w-full sm:w-auto px-8 py-4 border border-white/40 bg-white/10 backdrop-blur-md text-white text-xs uppercase tracking-[0.25em] font-medium hover:bg-white hover:text-[#1F1F1F] hover:border-white transition-all duration-300 flex items-center justify-center gap-3"
           >
             <Calendar className="w-4 h-4 text-[#B58E5B]" />

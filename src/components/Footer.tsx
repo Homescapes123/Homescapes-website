@@ -6,7 +6,7 @@ import { Mail, Instagram, Linkedin, Facebook, ArrowUp, Send, Check } from 'lucid
 const SHOW_NEWSLETTER = false;
 
 export const Footer: React.FC = () => {
-  const { setCurrentView, setIsBookingOpen } = useStudio();
+  const { setCurrentView, goToContact } = useStudio();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
 
@@ -149,7 +149,7 @@ export const Footer: React.FC = () => {
               
               <button
                 id="footer-book-btn"
-                onClick={() => setIsBookingOpen(true)}
+                onClick={() => goToContact()}
                 className="mt-4 px-4 py-2 bg-[#B58E5B] text-white text-[10px] uppercase tracking-widest font-medium hover:bg-white hover:text-black transition-colors block w-full text-center"
               >
                 Book Consultation

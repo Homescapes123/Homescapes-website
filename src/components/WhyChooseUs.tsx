@@ -1,5 +1,4 @@
 import React from 'react';
-import { useStudio } from '../context/StudioContext';
 import {
   CheckCircle2,
   Sparkles,
@@ -13,7 +12,6 @@ import {
 } from 'lucide-react';
 
 export const WhyChooseUs: React.FC = () => {
-  const { setIsBookingOpen } = useStudio();
 
   const reasons = [
     {

@@ -15,7 +15,6 @@ import { FAQSection } from './components/FAQSection';
 import { InstagramFeed } from './components/InstagramFeed';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
-import { BookingModal } from './components/BookingModal';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { BackToTop } from './components/BackToTop';
 import { IntroLoader } from './components/IntroLoader';
@@ -95,7 +94,6 @@ export default function App() {
         <Footer />
 
         {/* Overlays and Modals */}
-        <BookingModal />
         <ProjectDetailModal />
         <FloatingWhatsApp />
         <BackToTop />

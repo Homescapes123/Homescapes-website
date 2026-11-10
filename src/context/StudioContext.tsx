@@ -15,6 +15,7 @@ import {
   INITIAL_FAQS,
   INITIAL_LEADERSHIP
 } from '../data/initialData';
+import { CONTACT_SECTION_ID, scrollToSection } from '../lib/navigation';
 
 interface StudioContextType {
   currentView: ViewMode;
@@ -25,8 +26,8 @@ interface StudioContextType {
   setSelectedCategory: (cat: PortfolioCategory) => void;
   selectedProject: Project | null;
   setSelectedProject: (proj: Project | null) => void;
-  isBookingOpen: boolean;
-  setIsBookingOpen: (open: boolean) => void;
+  // "Book consultation" and similar buttons: scroll to the contact form at the end of the page.
+  goToContact: () => void;
   // Site content: read-only here, edited by the owner in the CMS
   leadership: LeaderProfile[];
   projects: Project[];
@@ -42,7 +43,13 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [selectedCategory, setSelectedCategory] = useState<PortfolioCategory>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [isBookingOpen, setIsBookingOpen] = useState<boolean>(false);
+
+  // Every page view ends with the contact section; the Privacy and Terms pages don't, so open Contact instead.
+  const goToContact = () => {
+    if (scrollToSection(CONTACT_SECTION_ID)) return;
+    setCurrentView('contact');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Handle theme class on <html> element
   useEffect(() => {
@@ -69,8 +76,7 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setSelectedCategory,
         selectedProject,
         setSelectedProject,
-        isBookingOpen,
-        setIsBookingOpen,
+        goToContact,
         leadership: INITIAL_LEADERSHIP,
         projects: INITIAL_PROJECTS,
         services: INITIAL_SERVICES,

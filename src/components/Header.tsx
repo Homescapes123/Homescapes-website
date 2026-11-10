@@ -1,17 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { useStudio } from '../context/StudioContext';
+import { findActiveNav, type NavView } from '../lib/navigation';
+import { ViewMode } from '../types';
 import { Calendar, Menu, X, ArrowRight, MapPin, Phone, Mail, Clock, Lock } from 'lucide-react';
 
 export const Header: React.FC = () => {
   const {
     currentView,
     setCurrentView,
-    setIsBookingOpen
+    goToContact
   } = useStudio();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  // The link underlined in the header: follows the section on screen, not just the view that was clicked.
+  const [activeNav, setActiveNav] = useState<ViewMode>(currentView);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => setActiveNav(findActiveNav(currentView)));
+    };
+
+    update(); // the new view's sections are already on the page here
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    // Images loading (or sections expanding) move sections without any scroll event.
+    const layoutChanges = new ResizeObserver(update);
+    layoutChanges.observe(document.body);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+      layoutChanges.disconnect();
+    };
+  }, [currentView]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,15 +51,15 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = [
-    { label: 'Home', view: 'home' as const },
-    { label: 'About', view: 'about' as const },
-    { label: 'Portfolio', view: 'portfolio' as const },
-    { label: 'Services', view: 'services' as const },
-    { label: 'Contact', view: 'contact' as const }
+  const navItems: { label: string; view: NavView }[] = [
+    { label: 'Home', view: 'home' },
+    { label: 'About', view: 'about' },
+    { label: 'Portfolio', view: 'portfolio' },
+    { label: 'Services', view: 'services' },
+    { label: 'Contact', view: 'contact' }
   ];
 
-  const handleNavClick = (view: typeof navItems[number]['view']) => {
+  const handleNavClick = (view: NavView) => {
     setCurrentView(view);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -109,14 +134,15 @@ export const Header: React.FC = () => {
                 key={item.view}
                 id={`nav-${item.view}-btn`}
                 onClick={() => handleNavClick(item.view)}
+                aria-current={activeNav === item.view ? 'location' : undefined}
                 className={`text-xs tracking-[0.18em] uppercase transition-all duration-300 py-1 relative ${
-                  currentView === item.view
+                  activeNav === item.view
                     ? 'text-[#B58E5B] font-semibold'
                     : 'text-[#1F1F1F]/80 dark:text-gray-300 hover:text-[#B58E5B] dark:hover:text-[#B58E5B]'
                 }`}
               >
                 {item.label}
-                {currentView === item.view && (
+                {activeNav === item.view && (
                   <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#B58E5B] animate-pulse" />
                 )}
               </button>
@@ -128,7 +154,7 @@ export const Header: React.FC = () => {
             {/* Book Consultation CTA Button */}
             <button
               id="header-book-consultation-btn"
-              onClick={() => setIsBookingOpen(true)}
+              onClick={goToContact}
               className="px-5 py-2.5 bg-[#1F1F1F] dark:bg-[#B58E5B] text-white text-[11px] tracking-[0.2em] uppercase font-medium hover:bg-[#B58E5B] dark:hover:bg-white dark:hover:text-[#1F1F1F] transition-all duration-300 shadow-sm flex items-center gap-2 group"
             >
               <Calendar className="w-3.5 h-3.5" />
@@ -174,8 +200,9 @@ export const Header: React.FC = () => {
                 key={item.view}
                 id={`mobile-nav-${item.view}-btn`}
                 onClick={() => handleNavClick(item.view)}
+                aria-current={activeNav === item.view ? 'location' : undefined}
                 className={`text-left font-serif text-2xl tracking-wide transition-colors ${
-                  currentView === item.view
+                  activeNav === item.view
                     ? 'text-[#B58E5B] font-semibold pl-2 border-l-2 border-[#B58E5B]'
                     : 'text-[#1F1F1F] dark:text-gray-200 hover:text-[#B58E5B]'
                 }`}
@@ -190,7 +217,7 @@ export const Header: React.FC = () => {
               id="mobile-book-btn"
               onClick={() => {
                 setMobileMenuOpen(false);
-                setIsBookingOpen(true);
+                goToContact();
               }}
               className="w-full py-3.5 bg-[#1F1F1F] dark:bg-[#B58E5B] text-white text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 font-medium"
             >
